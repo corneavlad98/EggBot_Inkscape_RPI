@@ -25,6 +25,7 @@ import gettext
 import math
 import time
 import sys
+import RPi.GPIO as GPIO
 
 from lxml import etree
 
