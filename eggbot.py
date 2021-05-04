@@ -44,17 +44,20 @@ plot_utils = from_dependency_import('plotink.plot_utils')  # Requires v 0.15 in 
 import eggbot_conf  # Some settings can be changed here.
 
 
-
 F_DEFAULT_SPEED = 1
 N_PEN_DOWN_DELAY = 400  # delay (ms) for the pen to go down before the next move
 N_PEN_UP_DELAY = 400  # delay (ms) for the pen to up down before the next move
 
-N_PEN_UP_POS = 50  # Default pen-up position
-N_PEN_DOWN_POS = 40  # Default pen-down position
+N_PEN_UP_POS = 90  # Default pen-up position (servo degrees)
+N_PEN_DOWN_POS = 60  # Default pen-down position (servo degrees)
 N_SERVOSPEED = 50  # Default pen-lift speed
 N_WALK_DEFAULT = 10  # Default steps for walking stepper motors
 N_DEFAULT_LAYER = 1  # Default inkscape layer
 
+N_SERVO_PIN_NUMBER = 7 # Default Servo pin number
+
+# Set GPIO numbering mode
+GPIO.setmode(GPIO.BOARD)
 
 class EggBot(inkex.Effect):
 
@@ -115,7 +118,7 @@ class EggBot(inkex.Effect):
                                      help="Position of pen when lowered")
         self.OptionParser.add_option("--servoPinNumber",
                                      action="store", type="int",
-                                     dest="servoPinNumber", default=1,
+                                     dest="servoPinNumber", default=N_SERVO_PIN_NUMBER,
                                      help="RPI pin number used for servo")
         self.OptionParser.add_option("--layernumber",
                                      action="store", type="int",
@@ -200,12 +203,12 @@ class EggBot(inkex.Effect):
         self.CheckSVGforEggbotData()
 
         if self.options.tab in ["Help", "options", "timing"]:
+            inkex.errormsg(gettext.gettext("Tab in options list!"))
             pass
         else:
             self.serialPort = ebb_serial.openPort()
-            # if self.serialPort is None:
-            #     inkex.errormsg(gettext.gettext("Failed to connect to EggBot. :("))
-            #inkex.errormsg(gettext.gettext("Code got to 'else'"))
+            self.options.tab = self.options.tab.replace('"','')
+
             if self.options.tab == "splash":
                 inkex.errormsg(gettext.gettext("Code got to 'splash'"))
                 self.allLayers = True
@@ -261,8 +264,8 @@ class EggBot(inkex.Effect):
                 ebb_motion.doTimedPause(self.serialPort, 10)  # Pause a moment for underway commands to finish...
                 ebb_serial.closePort(self.serialPort)
 
-        #inkex.errormsg(gettext.gettext("Code got to 'end function'"))
-        self.setupCommand()
+        inkex.errormsg(gettext.gettext("Code got to 'end function'"))
+
         self.svgDataRead = False
         self.UpdateSVGEggbotData(self.svg)
         return
@@ -347,20 +350,30 @@ class EggBot(inkex.Effect):
 
     def manualCommand(self):
         """Execute commands from the "manual" tab"""
-
         if self.options.manualType == "none":
             return
 
-        if self.serialPort is None:
-            return
-
         if self.options.manualType == "raise-pen":
-            self.ServoSetupWrapper()
-            self.penUp()
+            # Initialize
+            GPIO.setup(self.options.servoPinNumber,GPIO.OUT)
+            servo1 = GPIO.PWM(self.options.servoPinNumber,50) # chosen pin for servo1, pulse 50Hz 
+
+            self.penUpTest(servo1)
+
+            # stop
+            servo1.stop()
+            GPIO.cleanup()
 
         elif self.options.manualType == "lower-pen":
-            self.ServoSetupWrapper()
-            self.penDown()
+            # Initialize
+            GPIO.setup(self.options.servoPinNumber,GPIO.OUT)
+            servo1 = GPIO.PWM(self.options.servoPinNumber,50) # chosen pin for servo1, pulse 50Hz    
+
+            self.penDownTest(servo1)
+
+            # stop
+            servo1.stop()
+            GPIO.cleanup()
 
         elif self.options.manualType == "enable-motors":
             ebb_motion.sendEnableMotors(self.serialPort, 1)  # 16X microstepping
@@ -414,39 +427,40 @@ class EggBot(inkex.Effect):
             # inkex.errormsg( 'str_output:  ' + str_output )
 
             ebb_serial.command(self.serialPort, str_output)
+            
+    def movePenToAngle(self, angle, servo):           
+            # Start PWM running, with value of 0 (pulse off)
+            servo.start(0)
+                
+            # go to up angle
+            servo.ChangeDutyCycle(2+(angle/18))
+            time.sleep(0.5)
+            servo.ChangeDutyCycle(0)  
 
     def setupCommand(self):
         if self.options.setupType == "toggle-pen":
             inkex.errormsg(gettext.gettext("Code got to 'toggle pen function'"))
-            # Set GPIO numbering mode
-            GPIO.setmode(GPIO.BOARD)
 
             # Set chosen pin as an output, and define as servo1 as PWM pin
             GPIO.setup(self.options.servoPinNumber,GPIO.OUT)
-            servo1 = GPIO.PWM(7,50) # pin 7 for servo1, pulse 50Hz
-
-            # Start PWM running, with value of 0 (pulse off)
-            servo1.start(0)
-                
-            # go to up angle
-            servo1.ChangeDutyCycle(2+(self.options.penUpPosition/18))
-            time.sleep(0.5)
-            servo1.ChangeDutyCycle(0)
+            servo1 = GPIO.PWM(self.options.servoPinNumber,50) # chosen pin for servo1, pulse 50Hz
+           
+            # Move pen to selected up angle
+            self.movePenToAngle(self.options.penUpPosition, servo1)
 
             # Wait 1 second
             time.sleep(1)
 
-            # go to 0 angle
-            servo1.ChangeDutyCycle(2+(self.options.penDownPosition /18))
-            time.sleep(0.5)
-            servo1.ChangeDutyCycle(0)
-            
+            # Move pen to selected down angle
+            self.movePenToAngle(self.options.penDownPosition, servo1)
+              
             # Wait 1 second
             time.sleep(1)
 
             # stop
             servo1.stop()
             GPIO.cleanup()
+                 
         else:
             inkex.errormsg(gettext.gettext("Not implemented!"))
 
@@ -1053,10 +1067,20 @@ class EggBot(inkex.Effect):
         self.virtualPenIsUp = True  # Virtual pen keeps track of state for resuming plotting.
         if not self.bPenIsUp:  # Continue only if pen state is down (or unknown)
             if not self.resumeMode:  # or if we're resuming.
-                ebb_motion.sendPenUp(self.serialPort, self.options.penUpDelay)
+                ebb_motion.sendPenUp(self.serialPort, self.options.penUpDelay)              
                 if self.options.penUpDelay > 15:
                     if self.options.tab != "manual":
                         time.sleep(float(self.options.penUpDelay - 10) / 1000.0)  # pause before issuing next command
+                self.bPenIsUp = True
+                
+    def penUpTest(self, servo):
+        inkex.errormsg(gettext.gettext("Code got to 'penUpTest function'"))
+
+        self.virtualPenIsUp = True  # Virtual pen keeps track of state for resuming plotting.
+        if not self.bPenIsUp:  # Continue only if pen state is down (or unknown)
+            if not self.resumeMode:  # or if we're resuming.
+                # Move the pen
+                self.movePenToAngle(self.options.penUpPosition, servo)               
                 self.bPenIsUp = True
 
     def penDown(self):
@@ -1070,6 +1094,25 @@ class EggBot(inkex.Effect):
                 if self.options.penUpDelay > 15:
                     if self.options.tab != "manual":
                         time.sleep(float(self.options.penDownDelay - 10) / 1000.0)  # pause before issuing next command
+
+    def penDownTest(self, servo):
+        inkex.errormsg(gettext.gettext("Code got to 'penDownTest function'"))
+
+        self.virtualPenIsUp = False  # Virtual pen keeps track of state for resuming plotting.
+        if self.bPenIsUp or self.bPenIsUp is None: # Continue only if pen state is up (or unknown)
+            inkex.errormsg(gettext.gettext("Code got inside first 'if'"))
+            if not self.resumeMode and not self.bStopped:  # skip if we're resuming or stopped
+                inkex.errormsg(gettext.gettext("Code got inside second 'if'"))
+                self.bPenIsUp = False
+                if self.penDownActivatesEngraver:
+                    inkex.errormsg(gettext.gettext("Code got inside third 'if'"))
+                    self.engraverOn()  # will check self.enableEngraver
+
+                # Move the pen
+                self.movePenToAngle(self.options.penDownPosition, servo)
+        inkex.errormsg(gettext.gettext("Code got outside 'ifs'"))
+               
+
 
     def engraverOff(self):
         # Note: we don't bother checking self.engraverIsOn -- turn it off regardless
