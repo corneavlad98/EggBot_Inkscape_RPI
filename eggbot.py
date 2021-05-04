@@ -113,6 +113,10 @@ class EggBot(inkex.Effect):
                                      action="store", type="int",
                                      dest="penDownPosition", default=N_PEN_DOWN_POS,
                                      help="Position of pen when lowered")
+        self.OptionParser.add_option("--servoPinNumber",
+                                     action="store", type="int",
+                                     dest="servoPinNumber", default=1,
+                                     help="RPI pin number used for servo")
         self.OptionParser.add_option("--layernumber",
                                      action="store", type="int",
                                      dest="layernumber", default=N_DEFAULT_LAYER,
@@ -199,10 +203,11 @@ class EggBot(inkex.Effect):
             pass
         else:
             self.serialPort = ebb_serial.openPort()
-            if self.serialPort is None:
-                inkex.errormsg(gettext.gettext("Failed to connect to EggBot. :("))
-
+            # if self.serialPort is None:
+            #     inkex.errormsg(gettext.gettext("Failed to connect to EggBot. :("))
+            #inkex.errormsg(gettext.gettext("Code got to 'else'"))
             if self.options.tab == "splash":
+                inkex.errormsg(gettext.gettext("Code got to 'splash'"))
                 self.allLayers = True
                 self.plotCurrentLayer = True
                 self.svgNodeCount = 0
@@ -212,6 +217,7 @@ class EggBot(inkex.Effect):
                 self.plotToEggBot()
 
             elif self.options.tab == "resume":
+                inkex.errormsg(gettext.gettext("Code got to 'resume'"))
                 unused_button = ebb_motion.QueryPRGButton(self.serialPort)  # Query if button pressed
                 self.resumePlotSetup()
                 if self.resumeMode:
@@ -222,6 +228,7 @@ class EggBot(inkex.Effect):
                     inkex.errormsg(gettext.gettext("Truly sorry, there does not seem to be any in-progress plot to resume."))
 
             elif self.options.tab == "layers":
+                inkex.errormsg(gettext.gettext("Code got to 'layers'"))
                 self.allLayers = False
                 self.plotCurrentLayer = False
                 self.LayersPlotted = 0
@@ -234,9 +241,11 @@ class EggBot(inkex.Effect):
                     inkex.errormsg(gettext.gettext("Truly sorry, but I did not find any numbered layers to plot."))
 
             elif self.options.tab == "setup":
+                inkex.errormsg(gettext.gettext("Code got to 'setup'"))
                 self.setupCommand()
 
             elif self.options.tab == "manual":
+                inkex.errormsg(gettext.gettext("Code got to 'manual'"))
                 if self.options.manualType == "strip-data":
                     for node in self.svg.xpath('//svg:WCB', namespaces=inkex.NSS):
                         self.svg.remove(node)
@@ -248,9 +257,12 @@ class EggBot(inkex.Effect):
                     self.manualCommand()
 
             if self.serialPort is not None:
+                inkex.errormsg(gettext.gettext("Code got to 'serialPort not None"))
                 ebb_motion.doTimedPause(self.serialPort, 10)  # Pause a moment for underway commands to finish...
                 ebb_serial.closePort(self.serialPort)
 
+        #inkex.errormsg(gettext.gettext("Code got to 'end function'"))
+        self.setupCommand()
         self.svgDataRead = False
         self.UpdateSVGEggbotData(self.svg)
         return
@@ -404,16 +416,39 @@ class EggBot(inkex.Effect):
             ebb_serial.command(self.serialPort, str_output)
 
     def setupCommand(self):
-        """Execute commands from the "setup" tab"""
+        if self.options.setupType == "toggle-pen":
+            inkex.errormsg(gettext.gettext("Code got to 'toggle pen function'"))
+            # Set GPIO numbering mode
+            GPIO.setmode(GPIO.BOARD)
 
-        if self.serialPort is None:
-            return
-        self.ServoSetupWrapper()
-        if self.options.setupType == "align-mode":
-            self.penUp()
-            self.sendDisableMotors()
+            # Set chosen pin as an output, and define as servo1 as PWM pin
+            GPIO.setup(self.options.servoPinNumber,GPIO.OUT)
+            servo1 = GPIO.PWM(7,50) # pin 7 for servo1, pulse 50Hz
+
+            # Start PWM running, with value of 0 (pulse off)
+            servo1.start(0)
+                
+            # go to up angle
+            servo1.ChangeDutyCycle(2+(self.options.penUpPosition/18))
+            time.sleep(0.5)
+            servo1.ChangeDutyCycle(0)
+
+            # Wait 1 second
+            time.sleep(1)
+
+            # go to 0 angle
+            servo1.ChangeDutyCycle(2+(self.options.penDownPosition /18))
+            time.sleep(0.5)
+            servo1.ChangeDutyCycle(0)
+            
+            # Wait 1 second
+            time.sleep(1)
+
+            # stop
+            servo1.stop()
+            GPIO.cleanup()
         else:
-            ebb_motion.TogglePen(self.serialPort)
+            inkex.errormsg(gettext.gettext("Not implemented!"))
 
     def plotToEggBot(self):
         """Perform the actual plotting, if selected in the interface:"""

@@ -28,23 +28,21 @@ Visit http://wiki.evilmadscientist.com/eggbot
       <_param name="instructions_setup" type="description" appearance="header">
 EggBot: Basic Setup
 </_param>
+      <param indent="1" name="servoPinNumber" type="int" min="1" max="40"
+	     _gui-text="Servo pin number (not GPIO numbering):">1</param>
       <param indent="1" name="penUpPosition" type="int" min="0" max="100"
-	     _gui-text="Pen up position, 0-100%:">55</param>
+	     _gui-text="Pen up position, servo at (0-180):">90</param>
       <param indent="1" name="penDownPosition" type="int" min="0" max="100"
-	     _gui-text="Pen down position, 0-100%:">50</param>
-
+	     _gui-text="Pen down position, servo at (0-180):">0</param>
+      
   <param name="setupType" type="optiongroup"  _gui-text="
   Action on 'Apply': ">
 	<_option value="toggle-pen"     >Toggle pen up/down</_option>
-	<_option value="align-mode"     >Raise pen, turn off motors</_option>	
       </param>
       <_param indent="1" name="instructions_setup3" type="description"
 	      xml:space="preserve">
 - Raise and lower pen to check the
   pen-up and pen-down positions.
-
-- Raise pen and turn off stepper motors
-  for aligning objects in the EggBot.
 </_param>
     </page>
 
