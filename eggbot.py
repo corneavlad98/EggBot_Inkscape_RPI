@@ -43,6 +43,7 @@ plot_utils = from_dependency_import('plotink.plot_utils')  # Requires v 0.15 in 
 
 import eggbot_conf  # Some settings can be changed here.
 
+from RpiMotorLib import RpiMotorLib
 
 F_DEFAULT_SPEED = 1
 N_PEN_DOWN_DELAY = 400  # delay (ms) for the pen to go down before the next move
@@ -54,10 +55,19 @@ N_SERVOSPEED = 50  # Default pen-lift speed
 N_WALK_DEFAULT = 10  # Default steps for walking stepper motors
 N_DEFAULT_LAYER = 1  # Default inkscape layer
 
-N_SERVO_PIN_NUMBER = 7 # Default Servo pin number
+N_SERVO_PIN_NUMBER = 4 # Default Servo GPIO number
+
+N_STEPPER_1_MS1 = 14 # Default Stepper 1 MS1 GPIO pin
+N_STEPPER_1_MS2 = 15 # Default Stepper 1 MS2 GPIO pin
+N_STEPPER_1_MS3 = 18 # Default Stepper 1 MS3 GPIO pin
+N_STEPPER_1_DIRECTION = 21 # Default Stepper 1 direction GPIO pin
+N_STEPPER_1_STEP = 20 # Default Stepper 1 step GPIO pin
+N_STEPPER_1_STEP_TYPE = 'Full' # Default Stepper 1 step type
+N_STEPPER_1_WALK_DISTANCE = 5  # Default Stepper 1 walk distance (steps)
+N_STEPPER_1_CLOCKWISE = True   # Default Stepper 1 spinning direction
 
 # Set GPIO numbering mode
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 class EggBot(inkex.Effect):
 
@@ -148,6 +158,41 @@ class EggBot(inkex.Effect):
                                      action="store", type="inkbool",
                                      dest="revEggMotor", default=False,
                                      help="Reverse motion of egg motor.")
+
+
+        self.OptionParser.add_option("--MS1_pin_pen",
+                                     action="store", type="int",
+                                     dest="MS1_pin_pen", default=N_STEPPER_1_MS1,
+                                     help="RPI GPIO pin for MS1 of stepper 1")
+        self.OptionParser.add_option("--MS2_pin_pen",
+                                     action="store", type="int",
+                                     dest="MS2_pin_pen", default=N_STEPPER_1_MS2,
+                                     help="RPI GPIO pin for MS2 of stepper 1")
+        self.OptionParser.add_option("--MS3_pin_pen",
+                                     action="store", type="int",
+                                     dest="MS3_pin_pen", default=N_STEPPER_1_MS1,
+                                     help="RPI GPIO pin for MS3 of stepper 1")
+        self.OptionParser.add_option("--direction_pin_pen",
+                                     action="store", type="int",
+                                     dest="direction_pin_pen", default=N_STEPPER_1_DIRECTION,
+                                     help="RPI GPIO pin for direction of stepper 1")
+        self.OptionParser.add_option("--step_pin_pen",
+                                     action="store", type="int",
+                                     dest="step_pin_pen", default=N_STEPPER_1_STEP,
+                                     help="RPI GPIO pin for step of stepper 1")
+        self.OptionParser.add_option("--stepType_pen",
+                                     action="store", type="string",
+                                     dest="stepType_pen", default=N_STEPPER_1_STEP_TYPE,
+                                     help="Step type for stepper 1")
+        self.OptionParser.add_option("--WalkDistance_pen",
+                                     action="store", type="int",
+                                     dest="WalkDistance_pen", default=N_STEPPER_1_WALK_DISTANCE,
+                                     help="Walk distance (steps) for stepper 1")
+        self.OptionParser.add_option("--clockwise_pen",
+                                     action="store", type="inkbool",
+                                     dest="clockwise_pen", default=N_STEPPER_1_CLOCKWISE,
+                                     help="Spinning direction for stepper 1")
+        
 
         self.allLayers = None
         self.plotCurrentLayer = None
@@ -245,7 +290,10 @@ class EggBot(inkex.Effect):
 
             elif self.options.tab == "setup":
                 inkex.errormsg(gettext.gettext("Code got to 'setup'"))
-                self.setupCommand()
+                self.setupCommandServo()
+            elif self.options.tab == "setup2":
+                inkex.errormsg(gettext.gettext("Code got to 'setup2'"))
+                self.setupCommandStepperPen()
 
             elif self.options.tab == "manual":
                 inkex.errormsg(gettext.gettext("Code got to 'manual'"))
@@ -265,6 +313,7 @@ class EggBot(inkex.Effect):
                 ebb_serial.closePort(self.serialPort)
 
         inkex.errormsg(gettext.gettext("Code got to 'end function'"))
+        inkex.errormsg(gettext.gettext(self.options.tab))
 
         self.svgDataRead = False
         self.UpdateSVGEggbotData(self.svg)
@@ -437,32 +486,48 @@ class EggBot(inkex.Effect):
             time.sleep(0.5)
             servo.ChangeDutyCycle(0)  
 
-    def setupCommand(self):
-        if self.options.setupType == "toggle-pen":
-            inkex.errormsg(gettext.gettext("Code got to 'toggle pen function'"))
+    def setupCommandServo(self):
+        
+        inkex.errormsg(gettext.gettext("Code got to 'toggle pen function'"))
 
-            # Set chosen pin as an output, and define as servo1 as PWM pin
-            GPIO.setup(self.options.servoPinNumber,GPIO.OUT)
-            servo1 = GPIO.PWM(self.options.servoPinNumber,50) # chosen pin for servo1, pulse 50Hz
-           
-            # Move pen to selected up angle
-            self.movePenToAngle(self.options.penUpPosition, servo1)
+        # Set chosen pin as an output, and define as servo1 as PWM pin
+        GPIO.setup(self.options.servoPinNumber,GPIO.OUT)
+        servo1 = GPIO.PWM(self.options.servoPinNumber,50) # chosen pin for servo1, pulse 50Hz
+        
+        # Move pen to selected up angle
+        self.movePenToAngle(self.options.penUpPosition, servo1)
 
-            # Wait 1 second
-            time.sleep(1)
+        # Wait 1 second
+        time.sleep(1)
 
-            # Move pen to selected down angle
-            self.movePenToAngle(self.options.penDownPosition, servo1)
-              
-            # Wait 1 second
-            time.sleep(1)
+        # Move pen to selected down angle
+        self.movePenToAngle(self.options.penDownPosition, servo1)
+            
+        # Wait 1 second
+        time.sleep(1)
 
-            # stop
-            servo1.stop()
-            GPIO.cleanup()
+        # stop
+        servo1.stop()
+        GPIO.cleanup()
                  
-        else:
-            inkex.errormsg(gettext.gettext("Not implemented!"))
+    def setupCommandStepperPen(self):
+
+        inkex.errormsg(gettext.gettext("Code got to 'test pen stepper movement'"))
+
+        # Initialize the stepper
+        GPIO_pins = (self.options.MS1_pin_pen, self.options.MS2_pin_pen, self.options.MS3_pin_pen)
+        inkex.errormsg(gettext.gettext("Code got to 1"))
+
+        mymotortest = RpiMotorLib.A4988Nema(self.options.direction_pin_pen, self.options.step_pin_pen, GPIO_pins, "A4988")
+        inkex.errormsg(gettext.gettext("Code got to 2"))
+
+        # Execute command
+        mymotortest.motor_go(self.options.clockwise_pen, self.options.stepType_pen , self.options.WalkDistance_pen, 0.01, False, .05)
+        inkex.errormsg(gettext.gettext("Code got to 3"))
+
+
+        inkex.errormsg(gettext.gettext("Code got to 'end pen stepper movement'"))
+
 
     def plotToEggBot(self):
         """Perform the actual plotting, if selected in the interface:"""
