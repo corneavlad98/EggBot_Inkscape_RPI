@@ -511,24 +511,17 @@ class EggBot(inkex.Effect):
         GPIO.cleanup()
                  
     def setupCommandStepperPen(self):
-
         inkex.errormsg(gettext.gettext("Code got to 'test pen stepper movement'"))
 
         # Initialize the stepper
-        GPIO_pins = (self.options.MS1_pin_pen, self.options.MS2_pin_pen, self.options.MS3_pin_pen)
-        inkex.errormsg(gettext.gettext("Code got to 1"))
-
+        GPIO_pins = (self.options.MS1_pin_pen, self.options.MS2_pin_pen, self.options.MS3_pin_pen)      
         mymotortest = RpiMotorLib.A4988Nema(self.options.direction_pin_pen, self.options.step_pin_pen, GPIO_pins, "A4988")
-        inkex.errormsg(gettext.gettext("Code got to 2"))
-
-        # Execute command
-        mymotortest.motor_go(self.options.clockwise_pen, self.options.stepType_pen , self.options.WalkDistance_pen, 0.01, False, .05)
-        inkex.errormsg(gettext.gettext("Code got to 3"))
-
-
+       
+        # Execute command      
+        mymotortest.motor_go(not self.options.clockwise_pen, self.options.stepType_pen , self.options.WalkDistance_pen, 0.01, False, .05)
+ 
         inkex.errormsg(gettext.gettext("Code got to 'end pen stepper movement'"))
-
-
+   
     def plotToEggBot(self):
         """Perform the actual plotting, if selected in the interface:"""
         # parse the svg data as a series of line segments and send each segment to be plotted

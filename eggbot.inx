@@ -64,11 +64,11 @@ EggBot: Basic Setup - Stepper 1 (pen)
 	     _gui-text="Step pin (GPIO numbering):">20</param>
       <param name="stepType_pen" type="optiongroup" appearance="minimal"
 	     _gui-text="             Step Type: ">
-        <_option value="fullStep"           >Full</_option>
-        <_option value="halfStep"      >Half</_option>
-        <_option value="quaterStep"      >1/4</_option>
-        <_option value="eightStep" >1/8</_option>
-        <_option value="sixteenStep" >1/16</_option>      
+        <_option value="Full"           >Full</_option>
+        <_option value="Half"      >Half</_option>
+        <_option value="1/4"      >1/4</_option>
+        <_option value="1/8" >1/8</_option>
+        <_option value="1/16" >1/16</_option>      
       </param>
       <param name="WalkDistance_pen" type="int" min="-32000" max="32000" 
        _gui-text="             Walk distance (steps):">5</param>
