@@ -57,14 +57,24 @@ N_DEFAULT_LAYER = 1  # Default inkscape layer
 
 N_SERVO_PIN_NUMBER = 4 # Default Servo GPIO number
 
-N_STEPPER_1_MS1 = 14 # Default Stepper 1 MS1 GPIO pin
-N_STEPPER_1_MS2 = 15 # Default Stepper 1 MS2 GPIO pin
-N_STEPPER_1_MS3 = 18 # Default Stepper 1 MS3 GPIO pin
-N_STEPPER_1_DIRECTION = 21 # Default Stepper 1 direction GPIO pin
-N_STEPPER_1_STEP = 20 # Default Stepper 1 step GPIO pin
-N_STEPPER_1_STEP_TYPE = 'Full' # Default Stepper 1 step type
-N_STEPPER_1_WALK_DISTANCE = 5  # Default Stepper 1 walk distance (steps)
+N_STEPPER_1_MS1 = 17 # Default Stepper 1 MS1 GPIO pin
+N_STEPPER_1_MS2 = 27 # Default Stepper 1 MS2 GPIO pin
+N_STEPPER_1_MS3 = 22 # Default Stepper 1 MS3 GPIO pin
+N_STEPPER_1_DIRECTION = 26 # Default Stepper 1 direction GPIO pin
+N_STEPPER_1_STEP = 19 # Default Stepper 1 step GPIO pin
+N_STEPPER_1_STEP_TYPE = 'Half' # Default Stepper 1 step type
+N_STEPPER_1_WALK_DISTANCE = 50  # Default Stepper 1 walk distance (steps)
 N_STEPPER_1_CLOCKWISE = True   # Default Stepper 1 spinning direction
+
+N_STEPPER_2_MS1 = 14 # Default Stepper 2 MS1 GPIO pin
+N_STEPPER_2_MS2 = 15 # Default Stepper 2 MS2 GPIO pin
+N_STEPPER_2_MS3 = 18 # Default Stepper 2 MS3 GPIO pin
+N_STEPPER_2_DIRECTION = 21 # Default Stepper 2 direction GPIO pin
+N_STEPPER_2_STEP = 20 # Default Stepper 2 step GPIO pin
+N_STEPPER_2_STEP_TYPE = 'Half' # Default Stepper 2 step type
+N_STEPPER_2_WALK_DISTANCE = 50  # Default Stepper 2 walk distance (steps)
+N_STEPPER_2_CLOCKWISE = True   # Default Stepper 2 spinning direction
+
 
 # Set GPIO numbering mode
 GPIO.setmode(GPIO.BCM)
@@ -160,38 +170,72 @@ class EggBot(inkex.Effect):
                                      help="Reverse motion of egg motor.")
 
 
+        self.OptionParser.add_option("--MS1_pin_egg",
+                                     action="store", type="int",
+                                     dest="MS1_pin_egg", default=N_STEPPER_1_MS1,
+                                     help="RPI GPIO pin for MS1 of stepper 1")
+        self.OptionParser.add_option("--MS2_pin_egg",
+                                     action="store", type="int",
+                                     dest="MS2_pin_egg", default=N_STEPPER_1_MS2,
+                                     help="RPI GPIO pin for MS2 of stepper 1")
+        self.OptionParser.add_option("--MS3_pin_egg",
+                                     action="store", type="int",
+                                     dest="MS3_pin_egg", default=N_STEPPER_1_MS1,
+                                     help="RPI GPIO pin for MS3 of stepper 1")
+        self.OptionParser.add_option("--direction_pin_egg",
+                                     action="store", type="int",
+                                     dest="direction_pin_egg", default=N_STEPPER_1_DIRECTION,
+                                     help="RPI GPIO pin for direction of stepper 1")
+        self.OptionParser.add_option("--step_pin_egg",
+                                     action="store", type="int",
+                                     dest="step_pin_egg", default=N_STEPPER_1_STEP,
+                                     help="RPI GPIO pin for step of stepper 1")
+        self.OptionParser.add_option("--stepType_egg",
+                                     action="store", type="string",
+                                     dest="stepType_egg", default=N_STEPPER_1_STEP_TYPE,
+                                     help="Step type for stepper 1")
+        self.OptionParser.add_option("--WalkDistance_egg",
+                                     action="store", type="int",
+                                     dest="WalkDistance_egg", default=N_STEPPER_1_WALK_DISTANCE,
+                                     help="Walk distance (steps) for stepper 1")
+        self.OptionParser.add_option("--clockwise_egg",
+                                     action="store", type="inkbool",
+                                     dest="clockwise_egg", default=N_STEPPER_1_CLOCKWISE,
+                                     help="Spinning direction for stepper 1")
+
+
         self.OptionParser.add_option("--MS1_pin_pen",
                                      action="store", type="int",
-                                     dest="MS1_pin_pen", default=N_STEPPER_1_MS1,
-                                     help="RPI GPIO pin for MS1 of stepper 1")
+                                     dest="MS1_pin_pen", default=N_STEPPER_2_MS1,
+                                     help="RPI GPIO pin for MS1 of stepper 2")
         self.OptionParser.add_option("--MS2_pin_pen",
                                      action="store", type="int",
-                                     dest="MS2_pin_pen", default=N_STEPPER_1_MS2,
-                                     help="RPI GPIO pin for MS2 of stepper 1")
+                                     dest="MS2_pin_pen", default=N_STEPPER_2_MS2,
+                                     help="RPI GPIO pin for MS2 of stepper 2")
         self.OptionParser.add_option("--MS3_pin_pen",
                                      action="store", type="int",
-                                     dest="MS3_pin_pen", default=N_STEPPER_1_MS1,
-                                     help="RPI GPIO pin for MS3 of stepper 1")
+                                     dest="MS3_pin_pen", default=N_STEPPER_2_MS1,
+                                     help="RPI GPIO pin for MS3 of stepper 2")
         self.OptionParser.add_option("--direction_pin_pen",
                                      action="store", type="int",
-                                     dest="direction_pin_pen", default=N_STEPPER_1_DIRECTION,
-                                     help="RPI GPIO pin for direction of stepper 1")
+                                     dest="direction_pin_pen", default=N_STEPPER_2_DIRECTION,
+                                     help="RPI GPIO pin for direction of stepper 2")
         self.OptionParser.add_option("--step_pin_pen",
                                      action="store", type="int",
-                                     dest="step_pin_pen", default=N_STEPPER_1_STEP,
-                                     help="RPI GPIO pin for step of stepper 1")
+                                     dest="step_pin_pen", default=N_STEPPER_2_STEP,
+                                     help="RPI GPIO pin for step of stepper 2")
         self.OptionParser.add_option("--stepType_pen",
                                      action="store", type="string",
-                                     dest="stepType_pen", default=N_STEPPER_1_STEP_TYPE,
-                                     help="Step type for stepper 1")
+                                     dest="stepType_pen", default=N_STEPPER_2_STEP_TYPE,
+                                     help="Step type for stepper 2")
         self.OptionParser.add_option("--WalkDistance_pen",
                                      action="store", type="int",
-                                     dest="WalkDistance_pen", default=N_STEPPER_1_WALK_DISTANCE,
-                                     help="Walk distance (steps) for stepper 1")
+                                     dest="WalkDistance_pen", default=N_STEPPER_2_WALK_DISTANCE,
+                                     help="Walk distance (steps) for stepper 2")
         self.OptionParser.add_option("--clockwise_pen",
                                      action="store", type="inkbool",
-                                     dest="clockwise_pen", default=N_STEPPER_1_CLOCKWISE,
-                                     help="Spinning direction for stepper 1")
+                                     dest="clockwise_pen", default=N_STEPPER_2_CLOCKWISE,
+                                     help="Spinning direction for stepper 2")
         
 
         self.allLayers = None
@@ -293,6 +337,9 @@ class EggBot(inkex.Effect):
                 self.setupCommandServo()
             elif self.options.tab == "setup2":
                 inkex.errormsg(gettext.gettext("Code got to 'setup2'"))
+                self.setupCommandStepperEgg()
+            elif self.options.tab == "setup3":
+                inkex.errormsg(gettext.gettext("Code got to 'setup3'"))
                 self.setupCommandStepperPen()
 
             elif self.options.tab == "manual":
@@ -509,7 +556,19 @@ class EggBot(inkex.Effect):
         # stop
         servo1.stop()
         GPIO.cleanup()
-                 
+
+    def setupCommandStepperEgg(self):
+        inkex.errormsg(gettext.gettext("Code got to 'test egg stepper movement'"))
+
+        # Initialize the stepper
+        GPIO_pins = (self.options.MS1_pin_egg, self.options.MS2_pin_egg, self.options.MS3_pin_egg)      
+        mymotortest = RpiMotorLib.A4988Nema(self.options.direction_pin_egg, self.options.step_pin_egg, GPIO_pins, "A4988")
+       
+        # Execute command      
+        mymotortest.motor_go(not self.options.clockwise_egg, self.options.stepType_egg , self.options.WalkDistance_egg, 0.01, False, .05)
+ 
+        inkex.errormsg(gettext.gettext("Code got to 'end egg stepper movement'"))
+            
     def setupCommandStepperPen(self):
         inkex.errormsg(gettext.gettext("Code got to 'test pen stepper movement'"))
 
@@ -521,6 +580,7 @@ class EggBot(inkex.Effect):
         mymotortest.motor_go(not self.options.clockwise_pen, self.options.stepType_pen , self.options.WalkDistance_pen, 0.01, False, .05)
  
         inkex.errormsg(gettext.gettext("Code got to 'end pen stepper movement'"))
+
    
     def plotToEggBot(self):
         """Perform the actual plotting, if selected in the interface:"""

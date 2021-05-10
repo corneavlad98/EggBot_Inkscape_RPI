@@ -50,18 +50,54 @@ EggBot: Basic Setup - Servo Motor
     <page name='setup2' _gui-text='Setup2'>
 
       <_param name="instructions_setup" type="description" appearance="header">
-EggBot: Basic Setup - Stepper 1 (pen)
+EggBot: Basic Setup - Stepper 1 (egg)
+</_param>
+      <param indent="1" name="MS1_pin_egg" type="int" min="1" max="40"
+	     _gui-text="MS1 pin (GPIO numbering):">14</param>
+      <param indent="1" name="MS2_pin_egg" type="int" min="1" max="40"
+	     _gui-text="MS2 pin (GPIO numbering):">15</param>
+      <param indent="1" name="MS3_pin_egg" type="int" min="1" max="40"
+	     _gui-text="MS3 pin (GPIO numbering):">18</param>
+      <param indent="1" name="direction_pin_egg" type="int" min="1" max="40"
+	     _gui-text="Direction pin (GPIO numbering):">21</param>
+      <param indent="1" name="step_pin_egg" type="int" min="1" max="40"
+	     _gui-text="Step pin (GPIO numbering):">20</param>
+      <param name="stepType_egg" type="optiongroup" appearance="minimal"
+	     _gui-text="             Step Type: ">
+        <_option value="Full"           >Full</_option>
+        <_option value="Half"      >Half</_option>
+        <_option value="1/4"      >1/4</_option>
+        <_option value="1/8" >1/8</_option>
+        <_option value="1/16" >1/16</_option>      
+      </param>
+      <param name="WalkDistance_egg" type="int" min="-32000" max="32000" 
+       _gui-text="             Walk distance (steps):">5</param>
+      <param indent="2" name="clockwise_egg" type="boolean" 
+	     _gui-text="Clockwise">false</param>
+            
+      <_param indent="1" name="instructions_setup3" type="description"
+	      xml:space="preserve">
+- Test stepper 1 (egg) movement
+</_param>
+    </page>
+
+
+
+    <page name='setup3' _gui-text='Setup3'>
+
+      <_param name="instructions_setup" type="description" appearance="header">
+EggBot: Basic Setup - Stepper 2 (pen)
 </_param>
       <param indent="1" name="MS1_pin_pen" type="int" min="1" max="40"
-	     _gui-text="MS1 pin (GPIO numbering):">14</param>
+	     _gui-text="MS1 pin (GPIO numbering):">17</param>
       <param indent="1" name="MS2_pin_pen" type="int" min="1" max="40"
-	     _gui-text="MS2 pin (GPIO numbering):">15</param>
+	     _gui-text="MS2 pin (GPIO numbering):">27</param>
       <param indent="1" name="MS3_pin_pen" type="int" min="1" max="40"
-	     _gui-text="MS3 pin (GPIO numbering):">18</param>
+	     _gui-text="MS3 pin (GPIO numbering):">22</param>
       <param indent="1" name="direction_pin_pen" type="int" min="1" max="40"
-	     _gui-text="Direction pin (GPIO numbering):">21</param>
+	     _gui-text="Direction pin (GPIO numbering):">26</param>
       <param indent="1" name="step_pin_pen" type="int" min="1" max="40"
-	     _gui-text="Step pin (GPIO numbering):">20</param>
+	     _gui-text="Step pin (GPIO numbering):">19</param>
       <param name="stepType_pen" type="optiongroup" appearance="minimal"
 	     _gui-text="             Step Type: ">
         <_option value="Full"           >Full</_option>
@@ -77,9 +113,12 @@ EggBot: Basic Setup - Stepper 1 (pen)
             
       <_param indent="1" name="instructions_setup3" type="description"
 	      xml:space="preserve">
-- Test stepper 1 (pen) movement
+- Test stepper 2 (pen) movement
 </_param>
     </page>
+
+
+
 
 
     <!-- <page name='timing' _gui-text='Timing'>
