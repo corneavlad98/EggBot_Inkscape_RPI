@@ -17,7 +17,7 @@ gui['background']=backgroundColor
 
 # Fonts
 templateButtonFont = ("Helvetica", 24 )
-saveButtonFont = ("Helvetica", 18 )
+buttonFont = ("Helvetica", 18 )
 entryFieldFont = ("Helvetica", 18 )
 labelFont = ("Helvetica", 15 )
 titleLabelFont = ("Helvetica", 15, BOLD)
@@ -43,9 +43,12 @@ class Servo_Settins_Tab():
         self.add_labels(tab)
         self.add_entries(tab)
        
-        # Add save button to tab
-        saveButtonServo = Button(tab, text="Save", font = saveButtonFont, width = 5, fg = 'black', command=self.update)
-        saveButtonServo.place(x=290,y=470)
+        # Add save & test button to tab
+        testButton = Button(tab, text="Test", font = buttonFont, width = 5, fg = 'black', command=self.move)
+        testButton.place(x=150,y=470)
+    
+        saveButton = Button(tab, text="Save", font = buttonFont, width = 5, fg = 'black', command=self.update)
+        saveButton.place(x=415,y=470)
     
     def add_labels(self, tab):
         # Labels
@@ -93,6 +96,8 @@ class Servo_Settins_Tab():
         # Print
         self.print_servo_entries()
   
+    def move(self):
+        pass
 class Stepper1_Settings_Tab():
     def __init__(self, tab):
         # Define some paddings
@@ -106,9 +111,12 @@ class Stepper1_Settings_Tab():
         self.add_labels(tab)
         self.add_entries(tab)
        
-        # Add save button to tab
-        saveButtonServo = Button(tab, text="Save", font = saveButtonFont, width = 5, fg = 'black', command=self.update)
-        saveButtonServo.place(x=290,y=470)
+        # Add save & test button to tab
+        testButton = Button(tab, text="Test", font = buttonFont, width = 5, fg = 'black', command=self.move)
+        testButton.place(x=150,y=470)
+    
+        saveButton = Button(tab, text="Save", font = buttonFont, width = 5, fg = 'black', command=self.update)
+        saveButton.place(x=415,y=470)
     
     def add_labels(self, tab):
         # Labels
@@ -210,7 +218,8 @@ class Stepper1_Settings_Tab():
 
         # Print
         self.print_stepper_entries()
-
+    def move(self):
+        pass
 class Stepper2_Settings_Tab():
     def __init__(self, tab):
         # Define some paddings
@@ -224,9 +233,12 @@ class Stepper2_Settings_Tab():
         self.add_labels(tab)
         self.add_entries(tab)
        
-        # Add save button to tab
-        saveButtonServo = Button(tab, text="Save", font = saveButtonFont, width = 5, fg = 'black', command=self.update)
-        saveButtonServo.place(x=290,y=470)
+        # Add save & test button to tab
+        testButton = Button(tab, text="Test", font = buttonFont, width = 5, fg = 'black', command=self.move)
+        testButton.place(x=150,y=470)
+    
+        saveButton = Button(tab, text="Save", font = buttonFont, width = 5, fg = 'black', command=self.update)
+        saveButton.place(x=415,y=470)
     
     def add_labels(self, tab):
         # Labels
@@ -328,7 +340,8 @@ class Stepper2_Settings_Tab():
 
         # Print
         self.print_stepper_entries()
-
+    def move(self):
+        pass
 
 
 def open_settings_window():
