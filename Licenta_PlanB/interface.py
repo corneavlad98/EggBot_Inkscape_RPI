@@ -22,9 +22,10 @@ entryFieldFont = ("Helvetica", 18 )
 labelFont = ("Helvetica", 15 )
 titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
+optionMenuFont = ("Helvetica", 14)
 
 servoSettingsEntries = ['4', '90', '120']
-
+stepper1SettingsEntries = ['14', '15', '18', '21', '20', '1/4', 50, 'True']
 
 
 class Servo_Settins_Tab():
@@ -42,7 +43,7 @@ class Servo_Settins_Tab():
        
         # Add save button to tab
         saveButtonServo = Button(tab, text="Save", font = saveButtonFont, width = 5, fg = 'black', command=self.update)
-        saveButtonServo.place(x=290,y=420)
+        saveButtonServo.place(x=290,y=470)
     
     def add_labels(self, tab):
         # Labels
@@ -90,27 +91,147 @@ class Servo_Settins_Tab():
         # Print
         self.print_servo_entries()
   
+class Stepper1_Settings_Tab():
+    def __init__(self, tab):
+        # Define some paddings
+        self.padding_x = 45
+        self.padding_y = 25
+
+        # Title label
+        self.titleLabel = Label(tab, text="EggBot: Basic Setup - Stepper 1 (egg) ", font=titleLabelFont)
+        self.titleLabel.place(x=20,y=15)
+
+        self.add_labels(tab)
+        self.add_entries(tab)
+       
+        # Add save button to tab
+        saveButtonServo = Button(tab, text="Save", font = saveButtonFont, width = 5, fg = 'black', command=self.update)
+        saveButtonServo.place(x=290,y=470)
+    
+    def add_labels(self, tab):
+        # Labels
+        self.ms1PinLabel = Label(tab, text="MS1 pin (GPIO numbering): ", font=labelFont)
+        self.ms1PinLabel.place(x=50 + self.padding_x,y=45 + self.padding_y)
+
+        self.ms2PinLabel = Label(tab, text="MS2 pin (GPIO numbering): ", font=labelFont)
+        self.ms2PinLabel.place(x=50 + self.padding_x,y=85 + self.padding_y)
+
+        self.ms3PinLabel = Label(tab, text="MS3 pin (GPIO numbering): ", font=labelFont)
+        self.ms3PinLabel.place(x=50 + self.padding_x,y=125 + self.padding_y)
+
+        self.directionPinLabel = Label(tab, text="Direction pin (GPIO numbering): ", font=labelFont)
+        self.directionPinLabel.place(x=50 + self.padding_x,y=165 + self.padding_y)
+
+        self.stepPinLabel = Label(tab, text="Step pin (GPIO numbering): ", font=labelFont)
+        self.stepPinLabel.place(x=50 + self.padding_x,y=205 + self.padding_y)
+
+        self.stepTypeLabel = Label(tab, text="Step type: ", font=labelFont)
+        self.stepTypeLabel.place(x=50 + self.padding_x,y=245 + self.padding_y)
+
+        self.walkDistanceLabel = Label(tab, text="Walk distance (steps): ", font=labelFont)
+        self.walkDistanceLabel.place(x=50 + self.padding_x,y=285 + self.padding_y)
+
+        self.clockwiseLabel = Label(tab, text="Clockwise: ", font=labelFont)
+        self.clockwiseLabel.place(x=50 + self.padding_x,y=325 + self.padding_y)
+
+        self.details = "-Test stepper 1 (egg) movement"
+        self.detailsLabel = Label(tab, text=self.details, font=detailsTextFont)
+        self.detailsLabel.place(x=25 + self.padding_x, y=385 + self.padding_y)
+    
+    def add_entries(self, tab):
+        # Entries
+        self.ms1PinEntry = Entry(tab, font=entryFieldFont)
+        self.ms1PinEntry.insert(0, stepper1SettingsEntries[0])
+        self.ms1PinEntry.place(x=400 + self.padding_x,y=47 + self.padding_y, width=46, height=30)
+
+        self.ms2PinEntry = Entry(tab, font=entryFieldFont)
+        self.ms2PinEntry.insert(0, stepper1SettingsEntries[1])
+        self.ms2PinEntry.place(x=400 + self.padding_x,y=85 + self.padding_y, width=46, height=30)
+
+        self.ms3PinEntry = Entry(tab, font=entryFieldFont)
+        self.ms3PinEntry.insert(0, stepper1SettingsEntries[2])
+        self.ms3PinEntry.place(x=400 + self.padding_x,y=126 + self.padding_y, width=46, height=30)
+
+        self.directionPinEntry = Entry(tab, font=entryFieldFont)
+        self.directionPinEntry.insert(0, stepper1SettingsEntries[3])
+        self.directionPinEntry.place(x=400 + self.padding_x,y=166 + self.padding_y, width=46, height=30)
+
+        self.stepPinEntry = Entry(tab, font=entryFieldFont)
+        self.stepPinEntry.insert(0, stepper1SettingsEntries[4])
+        self.stepPinEntry.place(x=400 + self.padding_x,y=206 + self.padding_y, width=46, height=30)
+
+        self.stepTypesList = ["Full", "Half", "1/4", "1/8", "1/16"]
+        self.stringVar1 = StringVar(tab)
+        self.stringVar1.set(stepper1SettingsEntries[5]) # default value
+        self.stepTypeOptionMenu = OptionMenu(tab, self.stringVar1, *self.stepTypesList, command=self.option1Update)
+        self.stepTypeOptionMenu.config(font=optionMenuFont)
+        self.stepTypeOptionMenu.place(x=378 + self.padding_x,y=242 + self.padding_y, width=86, height=35)
+
+        self.walkDistanceEntry = Entry(tab, font=entryFieldFont)
+        self.walkDistanceEntry.insert(0, stepper1SettingsEntries[6])
+        self.walkDistanceEntry.place(x=392 + self.padding_x,y=283 + self.padding_y, width=66, height=30)
+
+        self.clockwiseList = ["True", "False"]
+        self.stringVar2 = StringVar(tab)
+        self.stringVar2.set(stepper1SettingsEntries[7]) # default value
+        self.clockwiseOptionMenu = OptionMenu(tab, self.stringVar2, *self.clockwiseList, command=self.option2Update)
+        self.clockwiseOptionMenu.config(font=optionMenuFont)
+        self.clockwiseOptionMenu.place(x=378 + self.padding_x,y=320 + self.padding_y, width=86, height=35)
+    
+    def print_stepper_entries(self):
+        stringToPrint = f'MS1 pin: {stepper1SettingsEntries[0]} MS2 pin: {stepper1SettingsEntries[1]} MS3 pin: {stepper1SettingsEntries[2]} '
+        stringToPrint += f'Direction pin: {stepper1SettingsEntries[3]} Step pin: {stepper1SettingsEntries[4]} Step type: {stepper1SettingsEntries[5]} '
+        stringToPrint += f'Walk distance: {stepper1SettingsEntries[6]} Clockwise: {stepper1SettingsEntries[7]}'
+        print(stringToPrint)
+
+    def option1Update(self, selection):
+        stepper1SettingsEntries[5] = selection     
+    def option2Update(self, selection):
+        stepper1SettingsEntries[7] = selection
+
+    def update(self):
+        # Get values from entries
+        entry_value1 = self.ms1PinEntry.get()
+        entry_value2 = self.ms2PinEntry.get()
+        entry_value3 = self.ms3PinEntry.get()
+        entry_value4 = self.directionPinEntry.get()
+        entry_value5 = self.stepPinEntry.get() 
+        entry_value6 = self.walkDistanceEntry.get()          
+
+        # Save values globally
+        stepper1SettingsEntries[0] = str(entry_value1)
+        stepper1SettingsEntries[1] = str(entry_value2)
+        stepper1SettingsEntries[2] = str(entry_value3)
+        stepper1SettingsEntries[3] = str(entry_value4)
+        stepper1SettingsEntries[4] = str(entry_value5)
+        stepper1SettingsEntries[6] = str(entry_value6)
+
+        # Print
+        self.print_stepper_entries()
+  
 
 def open_settings_window():
     # Define window configuration
     window = Toplevel(gui)
     window.title("Settings")
-    window.geometry("640x520")
+    window.geometry("640x560")
     window.resizable(False,False)
 
     # Define tab control widget & tabs
     tabControl = ttk.Notebook(window)
     tab1Frame = ttk.Frame(tabControl)
-    # tab2 = ttk.Frame(tabControl)
+    tab2Frame = ttk.Frame(tabControl)
     # tab3 = ttk.Frame(tabControl)
 
-    #servo_settings_tab(tab1)
     firstTab = Servo_Settins_Tab(tab1Frame)
     firstTab.print_servo_entries()
 
+    secondTab = Stepper1_Settings_Tab(tab2Frame)
+    secondTab.print_stepper_entries()
+
     # Add tabs to tab control widget
     tabControl.add(tab1Frame, text='Servo settings')
-    # tabControl.add(tab2, text='Stepper 1 (egg) settings')    
+    tabControl.add(tab2Frame, text='Stepper 1 (egg) settings')    
     # tabControl.add(tab3, text='Stepper 2 (pen) settings')
 
     # Render
