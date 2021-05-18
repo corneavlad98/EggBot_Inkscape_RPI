@@ -2,14 +2,14 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD
 from tkinter import messagebox
-#import RPi.GPIO as GPIO
-#from RpiMotorLib import RpiMotorLib
+import RPi.GPIO as GPIO
+from RpiMotorLib import RpiMotorLib
 import time
-#import pigpio
+import pigpio
 import math
 
 # Set GPIO numbering mode
-#GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BCM)
 
 #Define some colors
 backgroundColor = '#92b8c5' # cyan-ish color
@@ -33,8 +33,8 @@ detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
 servoSettingsEntries = ['4', '90', '120']
-stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 50, True]
-stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/4', 50, True]
+stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
+stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/4', 100, True]
 
 
 
@@ -110,6 +110,7 @@ class Servo_Settins_Tab():
         pwm.set_servo_pulsewidth(servo, 500 + addedPulse)
        
     def move(self):
+        print("got into servo move!")
         servo = int(servoSettingsEntries[0])
         servoUpAngle = int(servoSettingsEntries[1])
         servoDownAngle = int(servoSettingsEntries[2])
@@ -132,7 +133,7 @@ class Servo_Settins_Tab():
         pwm.set_PWM_dutycycle(servo, 0)
         pwm.set_PWM_frequency( servo, 0 )
 
-        print("finished moving!")
+        print("finished servo move!")
 class Stepper1_Settings_Tab():
     def __init__(self, tab):
         # Define some paddings
@@ -216,9 +217,9 @@ class Stepper1_Settings_Tab():
         self.walkDistanceEntry.insert(0, stepper1SettingsEntries[6])
         self.walkDistanceEntry.place(x=392 + self.padding_x,y=283 + self.padding_y, width=66, height=30)
 
-        self.clockwiseList = ["True", "False"]
-        self.stringVar2 = StringVar(tab)
-        self.stringVar2.set(str(stepper1SettingsEntries[7])) # default value
+        self.clockwiseList = [True, False]
+        self.stringVar2 = IntVar(tab)
+        self.stringVar2.set(stepper1SettingsEntries[7]) # default value
         self.clockwiseOptionMenu = OptionMenu(tab, self.stringVar2, *self.clockwiseList, command=self.option2Update)
         self.clockwiseOptionMenu.config(font=optionMenuFont)
         self.clockwiseOptionMenu.place(x=378 + self.padding_x,y=320 + self.padding_y, width=86, height=35)
@@ -259,6 +260,7 @@ class Stepper1_Settings_Tab():
         # Print
         self.print_stepper_entries()
     def move(self):
+        print("got into stepper 1 move!")
         # Initialize the stepper
         ms1Pin = stepper1SettingsEntries[0]
         ms2Pin = stepper1SettingsEntries[1]
@@ -274,6 +276,8 @@ class Stepper1_Settings_Tab():
 
         # Execute command      
         mymotortest.motor_go(not clockwise, stepType, walkDistance, 0.01, False, .05)
+
+        print("finished stepper 1 move!")
 class Stepper2_Settings_Tab():
     def __init__(self, tab):
         # Define some paddings
@@ -357,9 +361,10 @@ class Stepper2_Settings_Tab():
         self.walkDistanceEntry.insert(0, stepper2SettingsEntries[6])
         self.walkDistanceEntry.place(x=392 + self.padding_x,y=283 + self.padding_y, width=66, height=30)
 
-        self.clockwiseList = ["True", "False"]
-        self.stringVar2 = StringVar(tab)
-        self.stringVar2.set(str(stepper2SettingsEntries[7])) # default value
+        self.clockwiseList = [True, False]
+        self.stringVar2 = IntVar(tab)
+        self.stringVar2.set(
+            stepper2SettingsEntries[7]) # default value
         self.clockwiseOptionMenu = OptionMenu(tab, self.stringVar2, *self.clockwiseList, command=self.option2Update)
         self.clockwiseOptionMenu.config(font=optionMenuFont)
         self.clockwiseOptionMenu.place(x=378 + self.padding_x,y=320 + self.padding_y, width=86, height=35)
@@ -400,6 +405,7 @@ class Stepper2_Settings_Tab():
         # Print
         self.print_stepper_entries()
     def move(self):
+        print("got into stepper 2 move!")
          # Initialize the stepper
         ms1Pin = stepper2SettingsEntries[0]
         ms2Pin = stepper2SettingsEntries[1]
@@ -415,6 +421,8 @@ class Stepper2_Settings_Tab():
 
         # Execute command      
         mymotortest.motor_go(not clockwise, stepType, walkDistance, 0.01, False, .05)
+
+        print("finished stepper 2 move!")
 
 
 def open_settings_window():
