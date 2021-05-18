@@ -2,6 +2,14 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD
 from tkinter import messagebox
+import RPi.GPIO as GPIO
+from RpiMotorLib import RpiMotorLib
+import time
+import pigpio
+import math
+
+# Set GPIO numbering mode
+GPIO.setmode(GPIO.BCM)
 
 #Define some colors
 backgroundColor = '#92b8c5' # cyan-ish color
@@ -96,8 +104,35 @@ class Servo_Settins_Tab():
         # Print
         self.print_servo_entries()
   
+    def movePenToAngle(self, angle, servo, pwm):           
+        print( str(angle) + " deg" )
+        addedPulse = math.ceil((angle * 1000) / 90)
+        pwm.set_servo_pulsewidth(servo, 500 + addedPulse)
+       
     def move(self):
-        pass
+        servo = int(servoSettingsEntries[0])
+        servoUpAngle = int(servoSettingsEntries[1])
+        servoDownAngle = int(servoSettingsEntries[2])
+
+        GPIO.setmode( GPIO.BCM )
+        GPIO.setup( servo, GPIO.OUT )
+
+        pwm = pigpio.pi() 
+        pwm.set_mode(servo, pigpio.OUTPUT)
+
+        pwm.set_PWM_frequency( servo, 50 )
+
+        self.movePenToAngle(servoUpAngle, servo, pwm)
+        time.sleep(2)
+
+        self.movePenToAngle(servoDownAngle, servo, pwm)
+        time.sleep(2)
+       
+        # turning off servo
+        pwm.set_PWM_dutycycle(servo, 0)
+        pwm.set_PWM_frequency( servo, 0 )
+
+        print("finished moving!")
 class Stepper1_Settings_Tab():
     def __init__(self, tab):
         # Define some paddings
