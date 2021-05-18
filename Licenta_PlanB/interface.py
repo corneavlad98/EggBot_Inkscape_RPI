@@ -2,14 +2,14 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD
 from tkinter import messagebox
-import RPi.GPIO as GPIO
-from RpiMotorLib import RpiMotorLib
+#import RPi.GPIO as GPIO
+#from RpiMotorLib import RpiMotorLib
 import time
-import pigpio
+#import pigpio
 import math
 
 # Set GPIO numbering mode
-GPIO.setmode(GPIO.BCM)
+#GPIO.setmode(GPIO.BCM)
 
 #Define some colors
 backgroundColor = '#92b8c5' # cyan-ish color
@@ -33,8 +33,8 @@ detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
 servoSettingsEntries = ['4', '90', '120']
-stepper1SettingsEntries = ['14', '15', '18', '21', '20', '1/4', 50, 'True']
-stepper2SettingsEntries = ['17', '27', '22', '26', '19', '1/4', 50, 'True']
+stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 50, True]
+stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/4', 50, True]
 
 
 
@@ -218,7 +218,7 @@ class Stepper1_Settings_Tab():
 
         self.clockwiseList = ["True", "False"]
         self.stringVar2 = StringVar(tab)
-        self.stringVar2.set(stepper1SettingsEntries[7]) # default value
+        self.stringVar2.set(str(stepper1SettingsEntries[7])) # default value
         self.clockwiseOptionMenu = OptionMenu(tab, self.stringVar2, *self.clockwiseList, command=self.option2Update)
         self.clockwiseOptionMenu.config(font=optionMenuFont)
         self.clockwiseOptionMenu.place(x=378 + self.padding_x,y=320 + self.padding_y, width=86, height=35)
@@ -227,12 +227,17 @@ class Stepper1_Settings_Tab():
         stringToPrint = f'MS1 pin: {stepper1SettingsEntries[0]} MS2 pin: {stepper1SettingsEntries[1]} MS3 pin: {stepper1SettingsEntries[2]} '
         stringToPrint += f'Direction pin: {stepper1SettingsEntries[3]} Step pin: {stepper1SettingsEntries[4]} Step type: {stepper1SettingsEntries[5]} '
         stringToPrint += f'Walk distance: {stepper1SettingsEntries[6]} Clockwise: {stepper1SettingsEntries[7]}'
+
+        varTypes = f'1: {type(stepper1SettingsEntries[0])} 2: {type(stepper1SettingsEntries[1])} 3: {type(stepper1SettingsEntries[2])}'
+        varTypes += f'4: {type(stepper1SettingsEntries[3])} 5:{type(stepper1SettingsEntries[4])} 6: {type(stepper1SettingsEntries[5])}'
+        varTypes += f'7: {type(stepper1SettingsEntries[6])} 8: {type(stepper1SettingsEntries[7])}'
         print(stringToPrint)
+        print(varTypes)
 
     def option1Update(self, selection):
         stepper1SettingsEntries[5] = selection     
     def option2Update(self, selection):
-        stepper1SettingsEntries[7] = selection
+        stepper1SettingsEntries[7] = bool(selection)
 
     def update(self):
         # Get values from entries
@@ -244,25 +249,25 @@ class Stepper1_Settings_Tab():
         entry_value6 = self.walkDistanceEntry.get()          
 
         # Save values globally
-        stepper1SettingsEntries[0] = str(entry_value1)
-        stepper1SettingsEntries[1] = str(entry_value2)
-        stepper1SettingsEntries[2] = str(entry_value3)
-        stepper1SettingsEntries[3] = str(entry_value4)
-        stepper1SettingsEntries[4] = str(entry_value5)
-        stepper1SettingsEntries[6] = str(entry_value6)
+        stepper1SettingsEntries[0] = int(entry_value1)
+        stepper1SettingsEntries[1] = int(entry_value2)
+        stepper1SettingsEntries[2] = int(entry_value3)
+        stepper1SettingsEntries[3] = int(entry_value4)
+        stepper1SettingsEntries[4] = int(entry_value5)
+        stepper1SettingsEntries[6] = int(entry_value6)
 
         # Print
         self.print_stepper_entries()
     def move(self):
         # Initialize the stepper
-        ms1Pin = int(stepper1SettingsEntries[0])
-        ms2Pin = int(stepper1SettingsEntries[1])
-        ms3Pin = int(stepper1SettingsEntries[2])
-        directionPin = int(stepper1SettingsEntries[3])
-        stepPin = int(stepper1SettingsEntries[4])
+        ms1Pin = stepper1SettingsEntries[0]
+        ms2Pin = stepper1SettingsEntries[1]
+        ms3Pin = stepper1SettingsEntries[2]
+        directionPin = stepper1SettingsEntries[3]
+        stepPin = stepper1SettingsEntries[4]
         stepType = stepper1SettingsEntries[5]
         walkDistance = stepper1SettingsEntries[6]
-        clockwise = bool(stepper1SettingsEntries[7])
+        clockwise = stepper1SettingsEntries[7]
 
         GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)      
         mymotortest = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")
@@ -354,7 +359,7 @@ class Stepper2_Settings_Tab():
 
         self.clockwiseList = ["True", "False"]
         self.stringVar2 = StringVar(tab)
-        self.stringVar2.set(stepper2SettingsEntries[7]) # default value
+        self.stringVar2.set(str(stepper2SettingsEntries[7])) # default value
         self.clockwiseOptionMenu = OptionMenu(tab, self.stringVar2, *self.clockwiseList, command=self.option2Update)
         self.clockwiseOptionMenu.config(font=optionMenuFont)
         self.clockwiseOptionMenu.place(x=378 + self.padding_x,y=320 + self.padding_y, width=86, height=35)
@@ -363,12 +368,17 @@ class Stepper2_Settings_Tab():
         stringToPrint = f'MS1 pin: {stepper2SettingsEntries[0]} MS2 pin: {stepper2SettingsEntries[1]} MS3 pin: {stepper2SettingsEntries[2]} '
         stringToPrint += f'Direction pin: {stepper2SettingsEntries[3]} Step pin: {stepper2SettingsEntries[4]} Step type: {stepper2SettingsEntries[5]} '
         stringToPrint += f'Walk distance: {stepper2SettingsEntries[6]} Clockwise: {stepper2SettingsEntries[7]}'
+
+        varTypes = f'1: {type(stepper2SettingsEntries[0])} 2: {type(stepper2SettingsEntries[1])} 3: {type(stepper2SettingsEntries[2])}'
+        varTypes += f'4: {type(stepper2SettingsEntries[3])} 5:{type(stepper2SettingsEntries[4])} 6: {type(stepper2SettingsEntries[5])}'
+        varTypes += f'7: {type(stepper2SettingsEntries[6])} 8: {type(stepper2SettingsEntries[7])}'
         print(stringToPrint)
+        print(varTypes)
 
     def option1Update(self, selection):
         stepper2SettingsEntries[5] = selection     
     def option2Update(self, selection):
-        stepper2SettingsEntries[7] = selection
+        stepper2SettingsEntries[7] = bool(selection)
 
     def update(self):
         # Get values from entries
@@ -380,25 +390,25 @@ class Stepper2_Settings_Tab():
         entry_value6 = self.walkDistanceEntry.get()          
 
         # Save values globally
-        stepper2SettingsEntries[0] = str(entry_value1)
-        stepper2SettingsEntries[1] = str(entry_value2)
-        stepper2SettingsEntries[2] = str(entry_value3)
-        stepper2SettingsEntries[3] = str(entry_value4)
-        stepper2SettingsEntries[4] = str(entry_value5)
-        stepper2SettingsEntries[6] = str(entry_value6)
+        stepper2SettingsEntries[0] = int(entry_value1)
+        stepper2SettingsEntries[1] = int(entry_value2)
+        stepper2SettingsEntries[2] = int(entry_value3)
+        stepper2SettingsEntries[3] = int(entry_value4)
+        stepper2SettingsEntries[4] = int(entry_value5)
+        stepper2SettingsEntries[6] = int(entry_value6)
 
         # Print
         self.print_stepper_entries()
     def move(self):
          # Initialize the stepper
-        ms1Pin = int(stepper2SettingsEntries[0])
-        ms2Pin = int(stepper2SettingsEntries[1])
-        ms3Pin = int(stepper2SettingsEntries[2])
-        directionPin = int(stepper2SettingsEntries[3])
-        stepPin = int(stepper2SettingsEntries[4])
+        ms1Pin = stepper2SettingsEntries[0]
+        ms2Pin = stepper2SettingsEntries[1]
+        ms3Pin = stepper2SettingsEntries[2]
+        directionPin = stepper2SettingsEntries[3]
+        stepPin = stepper2SettingsEntries[4]
         stepType = stepper2SettingsEntries[5]
         walkDistance = stepper2SettingsEntries[6]
-        clockwise = bool(stepper2SettingsEntries[7])
+        clockwise = stepper2SettingsEntries[7]
 
         GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)      
         mymotortest = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")
