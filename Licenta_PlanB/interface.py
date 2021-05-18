@@ -254,7 +254,21 @@ class Stepper1_Settings_Tab():
         # Print
         self.print_stepper_entries()
     def move(self):
-        pass
+        # Initialize the stepper
+        ms1Pin = int(stepper1SettingsEntries[0])
+        ms2Pin = int(stepper1SettingsEntries[1])
+        ms3Pin = int(stepper1SettingsEntries[2])
+        directionPin = int(stepper1SettingsEntries[3])
+        stepPin = int(stepper1SettingsEntries[4])
+        stepType = stepper1SettingsEntries[5]
+        walkDistance = stepper1SettingsEntries[6]
+        clockwise = bool(stepper1SettingsEntries[7])
+
+        GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)      
+        mymotortest = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")
+
+        # Execute command      
+        mymotortest.motor_go(not clockwise, stepType, walkDistance, 0.01, False, .05)
 class Stepper2_Settings_Tab():
     def __init__(self, tab):
         # Define some paddings
