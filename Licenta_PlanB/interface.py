@@ -32,9 +32,9 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = ['4', '90', '120']
+servoSettingsEntries = ['4', '85', '90']
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
-stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/4', 100, True]
+stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 
 
 
@@ -233,7 +233,7 @@ class Stepper1_Settings_Tab():
         varTypes += f'4: {type(stepper1SettingsEntries[3])} 5:{type(stepper1SettingsEntries[4])} 6: {type(stepper1SettingsEntries[5])}'
         varTypes += f'7: {type(stepper1SettingsEntries[6])} 8: {type(stepper1SettingsEntries[7])}'
         print(stringToPrint)
-        print(varTypes)
+        #print(varTypes)
 
     def option1Update(self, selection):
         stepper1SettingsEntries[5] = selection     
@@ -271,6 +271,7 @@ class Stepper1_Settings_Tab():
         walkDistance = stepper1SettingsEntries[6]
         clockwise = stepper1SettingsEntries[7]
 
+        print(walkDistance)
         GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)      
         mymotortest = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")
 
@@ -378,7 +379,7 @@ class Stepper2_Settings_Tab():
         varTypes += f'4: {type(stepper2SettingsEntries[3])} 5:{type(stepper2SettingsEntries[4])} 6: {type(stepper2SettingsEntries[5])}'
         varTypes += f'7: {type(stepper2SettingsEntries[6])} 8: {type(stepper2SettingsEntries[7])}'
         print(stringToPrint)
-        print(varTypes)
+        #print(varTypes)
 
     def option1Update(self, selection):
         stepper2SettingsEntries[5] = selection     
