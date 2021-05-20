@@ -33,11 +33,37 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = ['4', '85', '90', True]
+servoSettingsEntries = [4, 85, 90, True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 
 path1 = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
+
+class ServoMotor():
+    def __init__(self, pin):
+        self.servo = int(pin)      
+
+        GPIO.setmode( GPIO.BCM )
+        GPIO.setup( self.servo, GPIO.OUT )
+
+        self.pwm = pigpio.pi() 
+        self.pwm.set_mode(self.servo, pigpio.OUTPUT)
+
+        self.pwm.set_PWM_frequency(self.servo, 50 )
+
+    def movePenToAngle(self, angle):
+         self.movePenToAngle(angle, self.servo, self.pwm)
+         time.sleep(1)
+class Stepper():
+    def __init__(self, stepperNumber, ms1Pin, ms2Pin, ms3Pin, directionPin, stepPin, stepType):
+        self.stepperNumber = stepperNumber
+        self.stepType = stepType
+        GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)
+        self.myStepper = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")   
+
+    def moveSteps(self, steps, clocwise):
+        print("got into stepper movement!")
+        self.myStepper.motor_go(not clocwise, self.stepType, steps, 0.01, False, .05)
 
 class Servo_Settins_Tab():
     def __init__(self, tab):
@@ -76,8 +102,7 @@ class Servo_Settins_Tab():
         self.details = "-Raise and lower pen to check pen-up and pen-down positions"
         self.detailsLabel = Label(tab, text=self.details, font=detailsTextFont)
         self.detailsLabel.place(x=25 + self.padding_x, y=300 + self.padding_y)
-
-           
+          
     def add_entries(self, tab):
         # Entries
         self.servoPinEntry = Entry(tab, font=entryFieldFont)
@@ -109,9 +134,9 @@ class Servo_Settins_Tab():
         entry_value3 = self.servoDownEntry.get()
 
         # Save values globally
-        servoSettingsEntries[0] = str(entry_value1)
-        servoSettingsEntries[1] = str(entry_value2)
-        servoSettingsEntries[2] = str(entry_value3)
+        servoSettingsEntries[0] = int(entry_value1)
+        servoSettingsEntries[1] = int(entry_value2)
+        servoSettingsEntries[2] = int(entry_value3)
 
         # Print
         self.print_servo_entries()
@@ -522,6 +547,8 @@ def open_template1_window():
     label4 = Label(window, text="When you are ready, press this button", font=labelFont)
     label4.place(x=150, y=440)
     #print_all()
+    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate1)
+    plotButton.place(x=285,y=490)
 
     window.mainloop()
    
@@ -554,6 +581,8 @@ def open_template2_window():
     label4 = Label(window, text="When you are ready, press this button", font=labelFont)
     label4.place(x=150, y=440)
     #print_all()
+    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate1)
+    plotButton.place(x=285,y=490)
 
     window.mainloop()
 def open_template3_window():
@@ -585,8 +614,37 @@ def open_template3_window():
     label4 = Label(window, text="When you are ready, press this button", font=labelFont)
     label4.place(x=150, y=440)
     #print_all()
+    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate1)
+    plotButton.place(x=285,y=490)
 
     window.mainloop()
+
+
+def plotTemplate1():
+    print("got into plotting first template!")
+    # Initialize servo
+    servo = ServoMotor(servoSettingsEntries[0])
+    penUpAngle = servoSettingsEntries[1]
+    penDownAngle = servoSettingsEntries[2]
+
+    # Initialize stepper 1 (egg)
+    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])
+    
+    # Initialize stepper 2 (pen)
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
+    
+    
+    #Lower pen
+    servo.movePenToAngle(penDownAngle)
+
+    # Full clockwise rotation
+    stepper1.moveSteps(800, True)
+
+
+
+
+
+    print("finished plotting first template!")
 
 #Define UI stuff
 mylabel = Label(gui, text = "Eggbot", font = ("Helvetica", 36 ), bg=backgroundColor)
