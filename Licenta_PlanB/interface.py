@@ -2,14 +2,15 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD
 from tkinter import messagebox
-import RPi.GPIO as GPIO
-from RpiMotorLib import RpiMotorLib
+from PIL import ImageTk,Image 
+#import RPi.GPIO as GPIO
+#from RpiMotorLib import RpiMotorLib
 import time
-import pigpio
+#import pigpio
 import math
 
 # Set GPIO numbering mode
-GPIO.setmode(GPIO.BCM)
+#GPIO.setmode(GPIO.BCM)
 
 #Define some colors
 backgroundColor = '#92b8c5' # cyan-ish color
@@ -32,11 +33,11 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = ['4', '85', '90']
+servoSettingsEntries = ['4', '85', '90', True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 
-
+path1 = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg.jpg"
 
 class Servo_Settins_Tab():
     def __init__(self, tab):
@@ -69,10 +70,14 @@ class Servo_Settins_Tab():
         self.servoDownLabel = Label(tab, text="Pen down position, servo at (0-180): ", font=labelFont)
         self.servoDownLabel.place(x=50 + self.padding_x,y=175 + self.padding_y)
 
+        self.penGoUpLabel = Label(tab, text="Pen goes up: ", font=labelFont)
+        self.penGoUpLabel.place(x=50 + self.padding_x, y=230 + self.padding_y)
+
         self.details = "-Raise and lower pen to check pen-up and pen-down positions"
         self.detailsLabel = Label(tab, text=self.details, font=detailsTextFont)
-        self.detailsLabel.place(x=25 + self.padding_x, y=275 + self.padding_y)
-    
+        self.detailsLabel.place(x=25 + self.padding_x, y=300 + self.padding_y)
+
+           
     def add_entries(self, tab):
         # Entries
         self.servoPinEntry = Entry(tab, font=entryFieldFont)
@@ -86,9 +91,16 @@ class Servo_Settins_Tab():
         self.servoDownEntry = Entry(tab, font=entryFieldFont)
         self.servoDownEntry.insert(0, servoSettingsEntries[2])
         self.servoDownEntry.place(x=400 + self.padding_x,y=177 + self.padding_y, width=46, height=30)
+
+        self.penGoesUpList = [True, False]
+        self.intvar = IntVar(tab)
+        self.intvar.set(servoSettingsEntries[3]) # default value
+        self.penGoesUpOptionMenu = OptionMenu(tab, self.intvar, *self.penGoesUpList, command=self.optionUpdate)
+        self.penGoesUpOptionMenu.config(font=optionMenuFont)
+        self.penGoesUpOptionMenu.place(x=378 + self.padding_x,y=227 + self.padding_y, width=86, height=35)
     
     def print_servo_entries(self):
-        print(f'Servo pin: {servoSettingsEntries[0]} Up position: {servoSettingsEntries[1]} Down position: {servoSettingsEntries[2]}')
+        print(f'Servo pin: {servoSettingsEntries[0]} Up position: {servoSettingsEntries[1]} Down position: {servoSettingsEntries[2]} Pen goes up: {servoSettingsEntries[3]}')
 
     def update(self):
         # Get values from entries
@@ -103,17 +115,21 @@ class Servo_Settins_Tab():
 
         # Print
         self.print_servo_entries()
-  
+    def optionUpdate(self, selection):
+        servoSettingsEntries[3] = bool(selection)
+
+
     def movePenToAngle(self, angle, servo, pwm):           
         print( str(angle) + " deg" )
         addedPulse = math.ceil((angle * 1000) / 90)
-        pwm.set_servo_pulsewidth(servo, 500 + addedPulse)
-       
+        pwm.set_servo_pulsewidth(servo, 500 + addedPulse)  
+
     def move(self):
         print("got into servo move!")
         servo = int(servoSettingsEntries[0])
         servoUpAngle = int(servoSettingsEntries[1])
         servoDownAngle = int(servoSettingsEntries[2])
+        penGoesUp = servoSettingsEntries[3]
 
         GPIO.setmode( GPIO.BCM )
         GPIO.setup( servo, GPIO.OUT )
@@ -123,12 +139,14 @@ class Servo_Settins_Tab():
 
         pwm.set_PWM_frequency( servo, 50 )
 
-        self.movePenToAngle(servoUpAngle, servo, pwm)
-        time.sleep(2)
-
-        self.movePenToAngle(servoDownAngle, servo, pwm)
-        time.sleep(2)
-       
+        if(penGoesUp):
+            print("going up!")
+            self.movePenToAngle(servoUpAngle, servo, pwm)
+        else:
+            print("going down!")
+            self.movePenToAngle(servoDownAngle, servo, pwm)
+        time.sleep(2)      
+      
         # turning off servo
         pwm.set_PWM_dutycycle(servo, 0)
         pwm.set_PWM_frequency( servo, 0 )
@@ -229,9 +247,9 @@ class Stepper1_Settings_Tab():
         stringToPrint += f'Direction pin: {stepper1SettingsEntries[3]} Step pin: {stepper1SettingsEntries[4]} Step type: {stepper1SettingsEntries[5]} '
         stringToPrint += f'Walk distance: {stepper1SettingsEntries[6]} Clockwise: {stepper1SettingsEntries[7]}'
 
-        varTypes = f'1: {type(stepper1SettingsEntries[0])} 2: {type(stepper1SettingsEntries[1])} 3: {type(stepper1SettingsEntries[2])}'
-        varTypes += f'4: {type(stepper1SettingsEntries[3])} 5:{type(stepper1SettingsEntries[4])} 6: {type(stepper1SettingsEntries[5])}'
-        varTypes += f'7: {type(stepper1SettingsEntries[6])} 8: {type(stepper1SettingsEntries[7])}'
+        # varTypes = f'1: {type(stepper1SettingsEntries[0])} 2: {type(stepper1SettingsEntries[1])} 3: {type(stepper1SettingsEntries[2])}'
+        # varTypes += f'4: {type(stepper1SettingsEntries[3])} 5:{type(stepper1SettingsEntries[4])} 6: {type(stepper1SettingsEntries[5])}'
+        # varTypes += f'7: {type(stepper1SettingsEntries[6])} 8: {type(stepper1SettingsEntries[7])}'
         print(stringToPrint)
         #print(varTypes)
 
@@ -375,9 +393,9 @@ class Stepper2_Settings_Tab():
         stringToPrint += f'Direction pin: {stepper2SettingsEntries[3]} Step pin: {stepper2SettingsEntries[4]} Step type: {stepper2SettingsEntries[5]} '
         stringToPrint += f'Walk distance: {stepper2SettingsEntries[6]} Clockwise: {stepper2SettingsEntries[7]}'
 
-        varTypes = f'1: {type(stepper2SettingsEntries[0])} 2: {type(stepper2SettingsEntries[1])} 3: {type(stepper2SettingsEntries[2])}'
-        varTypes += f'4: {type(stepper2SettingsEntries[3])} 5:{type(stepper2SettingsEntries[4])} 6: {type(stepper2SettingsEntries[5])}'
-        varTypes += f'7: {type(stepper2SettingsEntries[6])} 8: {type(stepper2SettingsEntries[7])}'
+        # varTypes = f'1: {type(stepper2SettingsEntries[0])} 2: {type(stepper2SettingsEntries[1])} 3: {type(stepper2SettingsEntries[2])}'
+        # varTypes += f'4: {type(stepper2SettingsEntries[3])} 5:{type(stepper2SettingsEntries[4])} 6: {type(stepper2SettingsEntries[5])}'
+        # varTypes += f'7: {type(stepper2SettingsEntries[6])} 8: {type(stepper2SettingsEntries[7])}'
         print(stringToPrint)
         #print(varTypes)
 
@@ -425,6 +443,23 @@ class Stepper2_Settings_Tab():
 
         print("finished stepper 2 move!")
 
+    
+  
+       
+def print_all():
+        print(f'Servo pin: {servoSettingsEntries[0]} Up position: {servoSettingsEntries[1]} Down position: {servoSettingsEntries[2]} Pen goes up: {servoSettingsEntries[3]}')
+        
+        stepper1ToPrint = f'MS1 pin: {stepper1SettingsEntries[0]} MS2 pin: {stepper1SettingsEntries[1]} MS3 pin: {stepper1SettingsEntries[2]} '
+        stepper1ToPrint += f'Direction pin: {stepper1SettingsEntries[3]} Step pin: {stepper1SettingsEntries[4]} Step type: {stepper1SettingsEntries[5]} '
+        stepper1ToPrint += f'Walk distance: {stepper1SettingsEntries[6]} Clockwise: {stepper1SettingsEntries[7]}'
+        print(stepper1ToPrint)
+
+        stepper2ToPrint = f'MS1 pin: {stepper2SettingsEntries[0]} MS2 pin: {stepper2SettingsEntries[1]} MS3 pin: {stepper2SettingsEntries[2]} '
+        stepper2ToPrint += f'Direction pin: {stepper2SettingsEntries[3]} Step pin: {stepper2SettingsEntries[4]} Step type: {stepper2SettingsEntries[5]} '
+        stepper2ToPrint += f'Walk distance: {stepper2SettingsEntries[6]} Clockwise: {stepper2SettingsEntries[7]}'
+        print(stepper2ToPrint)       
+def quit_program():
+    exit(0)
 
 def open_settings_window():
     # Define window configuration
@@ -458,22 +493,112 @@ def open_settings_window():
 
     window.mainloop()
 
+def open_template1_window():
+    # Define window configuration
+    window = Toplevel(gui)
+    window.title("Template 1")
+    window.geometry("640x560")
+    window.resizable(False,False)
 
+    image = Image.open(path1)
+    resized = image.resize((210, 290), Image.ANTIALIAS)  
+    #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
+    img = ImageTk.PhotoImage(resized)
 
-def quit_program():
-    exit(0)
+    #The Label widget is a standard Tkinter widget used to display a text or image on the screen.
+    panel = Label(window, image = img)
+    panel.place(x=390,y=50)
+
+    label1 = Label(window, text="Here's how template 1 should look like:  ", font=labelFont)
+    label1.place(x=20, y=70)
+
+    warning1 = "Before plotting, please make sure \n everything was set up properly."
+    label2 = Label(window, text=warning1, font=labelFont)
+    label2.place(x=20, y=150)
+
+    label3 = Label(window, text="For this, go to the 'Settings' tab", font=labelFont)
+    label3.place(x=30, y=250)
+
+    label4 = Label(window, text="When you are ready, press this button", font=labelFont)
+    label4.place(x=150, y=440)
+    #print_all()
+
+    window.mainloop()
+   
+def open_template2_window():
+    # Define window configuration
+    window = Toplevel(gui)
+    window.title("Template 2")
+    window.geometry("640x560")
+    window.resizable(False,False)
+
+    image = Image.open(path1)
+    resized = image.resize((210, 290), Image.ANTIALIAS)  
+    #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
+    img = ImageTk.PhotoImage(resized)
+
+    #The Label widget is a standard Tkinter widget used to display a text or image on the screen.
+    panel = Label(window, image = img)
+    panel.place(x=390,y=50)
+
+    label1 = Label(window, text="Here's how template 2 should look like:  ", font=labelFont)
+    label1.place(x=20, y=70)
+
+    warning1 = "Before plotting, please make sure \n everything was set up properly."
+    label2 = Label(window, text=warning1, font=labelFont)
+    label2.place(x=20, y=150)
+
+    label3 = Label(window, text="For this, go to the 'Settings' tab", font=labelFont)
+    label3.place(x=30, y=250)
+
+    label4 = Label(window, text="When you are ready, press this button", font=labelFont)
+    label4.place(x=150, y=440)
+    #print_all()
+
+    window.mainloop()
+def open_template3_window():
+    # Define window configuration
+    window = Toplevel(gui)
+    window.title("Template 3")
+    window.geometry("640x560")
+    window.resizable(False,False)
+
+    image = Image.open(path1)
+    resized = image.resize((210, 290), Image.ANTIALIAS)  
+    #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
+    img = ImageTk.PhotoImage(resized)
+
+    #The Label widget is a standard Tkinter widget used to display a text or image on the screen.
+    panel = Label(window, image = img)
+    panel.place(x=390,y=50)
+
+    label1 = Label(window, text="Here's how template 3 should look like:  ", font=labelFont)
+    label1.place(x=20, y=70)
+
+    warning1 = "Before plotting, please make sure \n everything was set up properly."
+    label2 = Label(window, text=warning1, font=labelFont)
+    label2.place(x=20, y=150)
+
+    label3 = Label(window, text="For this, go to the 'Settings' tab", font=labelFont)
+    label3.place(x=30, y=250)
+
+    label4 = Label(window, text="When you are ready, press this button", font=labelFont)
+    label4.place(x=150, y=440)
+    #print_all()
+
+    window.mainloop()
 
 #Define UI stuff
 mylabel = Label(gui, text = "Eggbot", font = ("Helvetica", 36 ), bg=backgroundColor)
 mylabel.pack(side=TOP, pady = 50)
 
-template1Button = Button(gui, text="Template 1", font = templateButtonFont, width = 9, fg = templateButtonTextColor)
+template1Button = Button(gui, text="Template 1", font = templateButtonFont, width = 9, fg = templateButtonTextColor, command=open_template1_window)
 template1Button.place(x=45,y=200)
 
-template2Button = Button(gui, text="Template 2", font = templateButtonFont, width = 9, fg = templateButtonTextColor)
+template2Button = Button(gui, text="Template 2", font = templateButtonFont, width = 9, fg = templateButtonTextColor, command=open_template2_window)
 template2Button.place(x=310,y=200)
 
-template3Button = Button(gui, text="Template 3", font = templateButtonFont, width = 9, fg = templateButtonTextColor)
+template3Button = Button(gui, text="Template 3", font = templateButtonFont, width = 9, fg = templateButtonTextColor, command=open_template3_window)
 template3Button.place(x=570,y=200)
 
 settingButton = Button(gui, text="Settings", font = templateButtonFont, width = 9, fg = 'black', command=open_settings_window)
