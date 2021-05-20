@@ -37,7 +37,7 @@ servoSettingsEntries = ['4', '85', '90', True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 
-path1 = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg.jpg"
+path1 = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
 
 class Servo_Settins_Tab():
     def __init__(self, tab):
