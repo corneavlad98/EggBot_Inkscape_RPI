@@ -3,14 +3,14 @@ from tkinter import ttk
 from tkinter.font import BOLD
 from tkinter import messagebox
 from PIL import ImageTk,Image 
-#import RPi.GPIO as GPIO
-#from RpiMotorLib import RpiMotorLib
+import RPi.GPIO as GPIO
+from RpiMotorLib import RpiMotorLib
 import time
-#import pigpio
+import pigpio
 import math
 
 # Set GPIO numbering mode
-#GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BCM)
 
 #Define some colors
 backgroundColor = '#92b8c5' # cyan-ish color
@@ -33,12 +33,12 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = [4, 85, 90, True]
+servoSettingsEntries = [4, 92, 105, True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 
-path1 = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
-
+path1_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
+path1_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
 class ServoMotor():
     def __init__(self, pin):
         self.servo = int(pin)      
@@ -52,8 +52,14 @@ class ServoMotor():
         self.pwm.set_PWM_frequency(self.servo, 50 )
 
     def movePenToAngle(self, angle):
-         self.movePenToAngle(angle, self.servo, self.pwm)
+         addedPulse = math.ceil((angle * 1000) / 90)
+         self.pwm.set_servo_pulsewidth(self.servo, 500 + addedPulse)  
+
          time.sleep(1)
+    def turnOff(self):
+        # turning off servo
+        self.pwm.set_PWM_dutycycle(self.servo, 0)
+        self.pwm.set_PWM_frequency(self.servo, 0 )
 class Stepper():
     def __init__(self, stepperNumber, ms1Pin, ms2Pin, ms3Pin, directionPin, stepPin, stepType):
         self.stepperNumber = stepperNumber
@@ -62,8 +68,10 @@ class Stepper():
         self.myStepper = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")   
 
     def moveSteps(self, steps, clocwise):
-        print("got into stepper movement!")
         self.myStepper.motor_go(not clocwise, self.stepType, steps, 0.01, False, .05)
+        time.sleep(1)
+    def stopStepper(self):
+        self.myStepper.motor_stop()
 
 class Servo_Settins_Tab():
     def __init__(self, tab):
@@ -525,7 +533,7 @@ def open_template1_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1)
+    image = Image.open(path1_RPI)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -559,7 +567,7 @@ def open_template2_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1)
+    image = Image.open(path1_RPI)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -592,7 +600,7 @@ def open_template3_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1)
+    image = Image.open(path1_RPI)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -619,7 +627,6 @@ def open_template3_window():
 
     window.mainloop()
 
-
 def plotTemplate1():
     print("got into plotting first template!")
     # Initialize servo
@@ -633,18 +640,71 @@ def plotTemplate1():
     # Initialize stepper 2 (pen)
     stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
     
+    # Add a stopping variable
+    finished = False
+    sideSteps = 100
+    while not finished:
+        try:   
+            # Lower pen
+            print("Lowering pen!")
+            servo.movePenToAngle(penDownAngle)
+            # Clockwise rotation
+            print("rotating egg!")
+            stepper1.moveSteps(840, True)
+            # Lift pen
+            print("Lifting pen!")
+            servo.movePenToAngle(penUpAngle)
+            print("Lifting pen a little!")
+            servo.movePenToAngle(penUpAngle - 8)
+            
+            #Go left
+            print("Going left!")
+            stepper2.moveSteps(sideSteps, False)
+            # Lower pen
+            print("Lowering pen!")
+            servo.movePenToAngle(penDownAngle)
+            # Clockwise Rotation
+            print("Rotating egg!")
+            stepper1.moveSteps(840, True)
+            # Lift pen
+            print("Lifting pen!")
+            servo.movePenToAngle(penUpAngle - 8)
+            
+            # Go back to middle
+            print("Going to middle!")
+            stepper2.moveSteps(sideSteps, True)
+            print("Lowering pen a little")
+            servo.movePenToAngle(penUpAngle)
+
+            # Go to right
+            print("Going right!")
+            stepper2.moveSteps(sideSteps, True)
+            # Lower pen
+            print("Lowering pen!")
+            servo.movePenToAngle(penDownAngle)
+            # Clockwise Rotation
+            print("Rotating egg!")
+            stepper1.moveSteps(840, True)
+            # Lift pen
+            print("Lifting pen!")
+            servo.movePenToAngle(penUpAngle)
+
+            # Go back to middle
+            print("Going to middle!")
+            stepper2.moveSteps(sideSteps, False)
+
+            finished = True
+        except KeyboardInterrupt:
+            print("got interrupted!")
+            break
+            finished = True
     
-    #Lower pen
-    servo.movePenToAngle(penDownAngle)
+    # turning off servo
+    servo.turnOff()
 
-    # Full clockwise rotation
-    stepper1.moveSteps(800, True)
-
-
-
-
-
+ 
     print("finished plotting first template!")
+    #window.destroy()
 
 #Define UI stuff
 mylabel = Label(gui, text = "Eggbot", font = ("Helvetica", 36 ), bg=backgroundColor)
