@@ -40,7 +40,9 @@ lastPenAngle = servoSettingsEntries[1]
 servoIsUp = None
 
 path1_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
+path2_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg2.jpg"
 path1_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
+path2_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg2.jpg"
 class ServoMotor():
     def __init__(self, pin):
         self.servo = int(pin)      
@@ -352,6 +354,8 @@ class Stepper1_Settings_Tab():
         clockwise = stepper1SettingsEntries[7]
 
         self.stepper.moveSteps(walkDistance, clockwise)
+        self.stepper.stopStepper()
+
         print("finished stepper 1 move!")
 class Stepper2_Settings_Tab():
     def __init__(self, tab):
@@ -492,8 +496,9 @@ class Stepper2_Settings_Tab():
         clockwise = stepper2SettingsEntries[7]
 
         self.stepper.moveSteps(walkDistance, clockwise)
-
+        self.stepper.stopStepper()
         print("finished stepper 2 move!")
+
 
    
     
@@ -514,6 +519,8 @@ def print_all():
 def quit_program():
     exit(0)
 
+def on_closing(servo):
+    servo.turnOff()
 def open_settings_window():
     # Define window configuration
     window = Toplevel(gui)
@@ -550,6 +557,8 @@ def open_settings_window():
     global servoIsUp
     servoIsUp = True
     print(servoIsUp)
+
+    window.protocol("WM_DELETE_WINDOW", on_closing(servo))
     window.mainloop()
 
 def open_template1_window():
@@ -559,7 +568,7 @@ def open_template1_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1_RPI)
+    image = Image.open(path1_PC)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -584,8 +593,7 @@ def open_template1_window():
     plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate1)
     plotButton.place(x=285,y=490)
 
-    window.mainloop()
-   
+    window.mainloop()  
 def open_template2_window():
     # Define window configuration
     window = Toplevel(gui)
@@ -593,7 +601,7 @@ def open_template2_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1_RPI)
+    image = Image.open(path2_PC)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -722,15 +730,77 @@ def plotTemplate1():
         except KeyboardInterrupt:
             print("got interrupted!")
             break
-            finished = True
     
     # turning off servo
     servo.turnOff()
+    stepper1.stopStepper()
+    stepper2.stopStepper()
 
  
     print("finished plotting first template!")
-    #window.destroy()
+def plotTemplate2():
+    print("got into plotting second template!")
+    # Initialize servo
+    servo = ServoMotor(servoSettingsEntries[0])
+    penUpAngle = servoSettingsEntries[1]
+    penDownAngle = servoSettingsEntries[2]
 
+    # Initialize stepper 1 (egg)
+    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
+    # Initialize stepper 2 (pen)
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
+    
+    # Add a stopping variable
+    finished = False
+    while not finished:
+        try:   
+            #Go left a little
+            print("Going left!")
+            stepper2.moveSteps(60, False)
+
+            #Rotate clockwise
+            print("Rotating clockwise!")
+            stepper1.moveSteps(90, True)
+
+            #Lower pen
+            print("Lowering pen!")
+            servo.movePenToAngleSlow(penDownAngle, 1)
+
+            #Rotate counter-clocwise
+            print("Rotating counter-clockwise!")
+            stepper1.moveSteps(180, False)
+
+            #Go to opposite right
+            print("Going right!")
+            stepper2.moveSteps(120, True)
+
+            #Rotate clockwise
+            print("Rotating clockwise!")
+            stepper1.moveSteps(90, True)
+
+            #Go to opposite left
+            print("Going right!")
+            stepper2.moveSteps(120, False)
+
+            #Lift pen
+            print("Lifting pen!")
+            servo.movePenToAngleSlow(penUpAngle, 1)
+
+            #We should have a square by now
+
+            finished = True
+        except KeyboardInterrupt:
+            print("got interrupted!")
+            break
+
+    
+    # turning off motors
+    servo.turnOff()
+    stepper1.stopStepper()
+    stepper2.stopStepper()
+
+ 
+    print("finished plotting second template!")
 #Define UI stuff
 mylabel = Label(gui, text = "Eggbot", font = ("Helvetica", 36 ), bg=backgroundColor)
 mylabel.pack(side=TOP, pady = 50)
