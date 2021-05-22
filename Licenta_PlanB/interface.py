@@ -73,6 +73,7 @@ class ServoMotor():
             time.sleep(incTime)
     def turnOff(self):
         # turning off servo
+        #print("turning off servo")
         self.pwm.set_PWM_dutycycle(self.servo, 0)
         self.pwm.set_PWM_frequency(self.servo, 0 )
 class Stepper():
@@ -92,14 +93,13 @@ class Stepper():
         time.sleep(1)
     def stopStepper(self):
         self.myStepper.motor_stop()
-    def updatePins(self, stepperNumber, ms1Pin, ms2Pin, ms3Pin, directionPin, stepPin, stepType):
-        self.stepperNumber = stepperNumber
-        self.stepType = stepType
+    def updatePins(self, ms1Pin, ms2Pin, ms3Pin, directionPin, stepPin, stepType):
         self.ms1Pin = ms1Pin
         self.ms2Pin = ms2Pin
         self.ms3Pin = ms3Pin
         self.directionPin = directionPin
         self.stepPin = stepPin
+        self.stepType = stepType
         self.GPIO_pins = (self.ms1Pin, self.ms2Pin, self.ms3Pin)
 
 
@@ -348,22 +348,9 @@ class Stepper1_Settings_Tab():
         self.print_stepper_entries()
     def move(self):
         print("got into stepper 1 move!")
-        # # Initialize the stepper
-        # ms1Pin = stepper1SettingsEntries[0]
-        # ms2Pin = stepper1SettingsEntries[1]
-        # ms3Pin = stepper1SettingsEntries[2]
-        # directionPin = stepper1SettingsEntries[3]
-        # stepPin = stepper1SettingsEntries[4]
-        # stepType = stepper1SettingsEntries[5]
         walkDistance = stepper1SettingsEntries[6]
         clockwise = stepper1SettingsEntries[7]
 
-        # print(walkDistance)
-        # GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)      
-        # mymotortest = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")
-
-        # # Execute command      
-        # mymotortest.motor_go(not clockwise, stepType, walkDistance, 0.01, False, .05)
         self.stepper.moveSteps(walkDistance, clockwise)
         print("finished stepper 1 move!")
 class Stepper2_Settings_Tab():
@@ -385,6 +372,9 @@ class Stepper2_Settings_Tab():
     
         saveButton = Button(tab, text="Save", font = buttonFont, width = 5, fg = 'black', command=self.update)
         saveButton.place(x=415,y=470)
+
+        self.stepper = Stepper(1, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])  
+
     
     def add_labels(self, tab):
         # Labels
@@ -469,7 +459,9 @@ class Stepper2_Settings_Tab():
         #print(varTypes)
 
     def option1Update(self, selection):
-        stepper2SettingsEntries[5] = selection     
+        stepper2SettingsEntries[5] = selection
+        self.stepper.updatePins(stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])    
+    
     def option2Update(self, selection):
         stepper2SettingsEntries[7] = bool(selection)
 
@@ -490,28 +482,20 @@ class Stepper2_Settings_Tab():
         stepper2SettingsEntries[4] = int(entry_value5)
         stepper2SettingsEntries[6] = int(entry_value6)
 
+        self.stepper.updatePins(stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])    
+
         # Print
         self.print_stepper_entries()
     def move(self):
-        print("got into stepper 2 move!")
-         # Initialize the stepper
-        ms1Pin = stepper2SettingsEntries[0]
-        ms2Pin = stepper2SettingsEntries[1]
-        ms3Pin = stepper2SettingsEntries[2]
-        directionPin = stepper2SettingsEntries[3]
-        stepPin = stepper2SettingsEntries[4]
-        stepType = stepper2SettingsEntries[5]
+        print("got into stepper 2 move!")       
         walkDistance = stepper2SettingsEntries[6]
         clockwise = stepper2SettingsEntries[7]
 
-        GPIO_pins = (ms1Pin, ms2Pin, ms3Pin)      
-        mymotortest = RpiMotorLib.A4988Nema(directionPin, stepPin, GPIO_pins, "A4988")
-
-        # Execute command      
-        mymotortest.motor_go(not clockwise, stepType, walkDistance, 0.01, False, .05)
+        self.stepper.moveSteps(walkDistance, clockwise)
 
         print("finished stepper 2 move!")
 
+   
     
   
        
