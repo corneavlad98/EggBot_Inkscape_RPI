@@ -3,14 +3,14 @@ from tkinter import ttk
 from tkinter.font import BOLD
 from tkinter import messagebox
 from PIL import ImageTk,Image 
-import RPi.GPIO as GPIO
-from RpiMotorLib import RpiMotorLib
+#import RPi.GPIO as GPIO
+#from RpiMotorLib import RpiMotorLib
 import time
-import pigpio
+#import pigpio
 import math
 
 # Set GPIO numbering mode
-GPIO.setmode(GPIO.BCM)
+#GPIO.setmode(GPIO.BCM)
 
 #Define some colors
 backgroundColor = '#92b8c5' # cyan-ish color
@@ -36,6 +36,7 @@ optionMenuFont = ("Helvetica", 14)
 servoSettingsEntries = [4, 92, 105, True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
+lastPenAngle = 0
 
 path1_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
 path1_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
@@ -50,7 +51,9 @@ class ServoMotor():
         self.pwm.set_mode(self.servo, pigpio.OUTPUT)
 
         self.pwm.set_PWM_frequency(self.servo, 50 )
-
+    def updatePin(self, pin):
+        self.servo = int(pin)
+        print("updated pin!")
     def movePenToAngle(self, angle):
          addedPulse = math.ceil((angle * 1000) / 90)
          self.pwm.set_servo_pulsewidth(self.servo, 500 + addedPulse)  
@@ -92,6 +95,8 @@ class Servo_Settins_Tab():
     
         saveButton = Button(tab, text="Save", font = buttonFont, width = 5, fg = 'black', command=self.update)
         saveButton.place(x=415,y=470)
+
+        self.servoMotor = ServoMotor(servoSettingsEntries[0])
     
     def add_labels(self, tab):
         # Labels
@@ -133,8 +138,7 @@ class Servo_Settins_Tab():
         self.penGoesUpOptionMenu.place(x=378 + self.padding_x,y=227 + self.padding_y, width=86, height=35)
     
     def print_servo_entries(self):
-        print(f'Servo pin: {servoSettingsEntries[0]} Up position: {servoSettingsEntries[1]} Down position: {servoSettingsEntries[2]} Pen goes up: {servoSettingsEntries[3]}')
-
+        print(f'Servo pin: {servoSettingsEntries[0]} Up position: {servoSettingsEntries[1]} Down position: {servoSettingsEntries[2]} Pen goes up: {servoSettingsEntries[3]}')      
     def update(self):
         # Get values from entries
         entry_value1 = self.servoPinEntry.get()
@@ -146,38 +150,46 @@ class Servo_Settins_Tab():
         servoSettingsEntries[1] = int(entry_value2)
         servoSettingsEntries[2] = int(entry_value3)
 
+        self.servoMotor.updatePin(servoSettingsEntries[0])
+       
         # Print
         self.print_servo_entries()
     def optionUpdate(self, selection):
         servoSettingsEntries[3] = bool(selection)
 
 
-    def movePenToAngle(self, angle, servo, pwm):           
-        print( str(angle) + " deg" )
-        addedPulse = math.ceil((angle * 1000) / 90)
-        pwm.set_servo_pulsewidth(servo, 500 + addedPulse)  
+    # def movePenToAngle(self, angle, servo, pwm):           
+    #     print( str(angle) + " deg" )
+    #     addedPulse = math.ceil((angle * 1000) / 90)
+    #     pwm.set_servo_pulsewidth(servo, 500 + addedPulse)  
 
     def move(self):
-        print("got into servo move!")
-        servo = int(servoSettingsEntries[0])
+        print("got into servo move!")      
         servoUpAngle = int(servoSettingsEntries[1])
         servoDownAngle = int(servoSettingsEntries[2])
         penGoesUp = servoSettingsEntries[3]
+        global lastPenAngle
 
-        GPIO.setmode( GPIO.BCM )
-        GPIO.setup( servo, GPIO.OUT )
+        # GPIO.setmode( GPIO.BCM )
+        # GPIO.setup( servo, GPIO.OUT )
 
-        pwm = pigpio.pi() 
-        pwm.set_mode(servo, pigpio.OUTPUT)
+        # pwm = pigpio.pi() 
+        # pwm.set_mode(servo, pigpio.OUTPUT)
 
-        pwm.set_PWM_frequency( servo, 50 )
-
+        # pwm.set_PWM_frequency( servo, 50 )
+               
         if(penGoesUp):
             print("going up!")
-            self.movePenToAngle(servoUpAngle, servo, pwm)
+            lastPenAngle = servoDownAngle
+            print(lastPenAngle)
+            #self.movePenToAngle(servoUpAngle, servo, pwm)
+            self.servoMotor.movePenToAngle(servoUpAngle)
         else:
             print("going down!")
-            self.movePenToAngle(servoDownAngle, servo, pwm)
+            lastPenAngle = servoUpAngle
+            print(lastPenAngle)
+            #self.movePenToAngle(servoDownAngle, servo, pwm)
+            self.servoMotor.movePenToAngle(servoDownAngle)
         time.sleep(2)      
       
         # turning off servo
@@ -524,6 +536,7 @@ def open_settings_window():
     # Render
     tabControl.pack(expand=1,fill='both')
 
+    lastPenAngle = servoSettingsEntries[1]
     window.mainloop()
 
 def open_template1_window():
@@ -635,8 +648,7 @@ def plotTemplate1():
     penDownAngle = servoSettingsEntries[2]
 
     # Initialize stepper 1 (egg)
-    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])
-    
+    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
     # Initialize stepper 2 (pen)
     stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
     
