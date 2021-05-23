@@ -56,6 +56,8 @@ class ServoMotor():
         self.pwm.set_PWM_frequency(self.servo, 50 )
     def updatePin(self, pin):
         self.servo = int(pin)
+    def setFrequency(self, frequency):
+        self.pwm.set_PWM_frequency(self.servo, frequency )
     def movePenToAngle(self, angle):     
         addedPulse = math.ceil((angle * 1000) / 90)
         self.pwm.set_servo_pulsewidth(self.servo, 500 + addedPulse)  
@@ -194,6 +196,8 @@ class Servo_Settins_Tab():
         penGoesUp = servoSettingsEntries[3]
         global lastPenAngle
         global servoIsUp
+
+        self.servoMotor.setFrequency(50)
                
         if(penGoesUp and not servoIsUp):
             print("going up!")
@@ -731,7 +735,7 @@ def plotTemplate1():
             print("got interrupted!")
             break
     
-    # turning off servo
+    # stopping motors
     servo.turnOff()
     stepper1.stopStepper()
     stepper2.stopStepper()
@@ -794,7 +798,7 @@ def plotTemplate2():
             break
 
     
-    # turning off motors
+    # stopping motors
     servo.turnOff()
     stepper1.stopStepper()
     stepper2.stopStepper()
