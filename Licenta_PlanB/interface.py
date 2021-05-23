@@ -33,7 +33,7 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = [4, 92, 105, True]
+servoSettingsEntries = [4, 92, 102, True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 lastPenAngle = servoSettingsEntries[1]
@@ -77,7 +77,7 @@ class ServoMotor():
             time.sleep(incTime)
     def turnOff(self):
         # turning off servo
-        #print("turning off servo")
+        print("turning off servo")
         self.pwm.set_PWM_dutycycle(self.servo, 0)
         self.pwm.set_PWM_frequency(self.servo, 0 )
 class Stepper():
@@ -97,6 +97,7 @@ class Stepper():
         time.sleep(1)
     def stopStepper(self):
         self.myStepper.motor_stop()
+        print("stopping stepper!")
     def updatePins(self, ms1Pin, ms2Pin, ms3Pin, directionPin, stepPin, stepType):
         self.ms1Pin = ms1Pin
         self.ms2Pin = ms2Pin
@@ -572,7 +573,7 @@ def open_template1_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1_PC)
+    image = Image.open(path1_RPI)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -605,7 +606,7 @@ def open_template2_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path2_PC)
+    image = Image.open(path2_RPI)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -627,7 +628,7 @@ def open_template2_window():
     label4 = Label(window, text="When you are ready, press this button", font=labelFont)
     label4.place(x=150, y=440)
     #print_all()
-    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate1)
+    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate2)
     plotButton.place(x=285,y=490)
 
     window.mainloop()
@@ -754,44 +755,122 @@ def plotTemplate2():
     # Initialize stepper 2 (pen)
     stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
     
+    stepper1SquareSteps = 144
+    stepper2SquareSteps = 72
+    def drawSquare():
+        #Go left a little
+        print("Going left!")
+        stepper2.moveSteps(stepper2SquareSteps, False)
+
+        #Rotate clockwise
+        print("Rotating clockwise!")
+        stepper1.moveSteps(stepper1SquareSteps, True)
+
+        #Lower pen
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        #Rotate counter-clocwise
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(stepper1SquareSteps, False)
+
+        #Go to opposite right
+        print("Going right!")
+        stepper2.moveSteps(stepper2SquareSteps * 2, True)
+
+        #Rotate clockwise
+        print("Rotating clockwise!")
+        stepper1.moveSteps(stepper1SquareSteps, True)
+
+        #Go to opposite left
+        print("Going left!")
+        stepper2.moveSteps(stepper2SquareSteps * 2, False)
+
+        #Lift pen
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+        print("Finished drawing square!")
+
+    def drawFirstEye():
+        # Drawing first eye
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/4), False)
+
+        print("Going right")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        
+        #Lift pen
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+        print("Finished drawing first eye!")
+    def drawSecondEye():
+        # Drawing second eye           
+        print("Going left!")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), False)
+
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/2), False)
+                       
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        #Lift pen
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+        print("Finished drawing second eye!")
+
+    def drawMouth():
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/8), False)
+
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/4), True)
+
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+         
+        print("Rotating clockwise!")
+        stepper1.moveSteps(int((stepper1SquareSteps/4)*3) , True)
+
+        print("Going left!")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), False)
+        #Lift pen
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+        print("Finished drawing mouth!")
+
+    def goToInitialPoint():
+        #Going back to initial point
+        print("Going left!")
+        stepper2.moveSteps(int(stepper2SquareSteps/4), False)
+
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps - int((stepper1SquareSteps/8))), False)
+
     # Add a stopping variable
     finished = False
     while not finished:
-        try:   
-            #Go left a little
-            print("Going left!")
-            stepper2.moveSteps(60, False)
-
-            #Rotate clockwise
-            print("Rotating clockwise!")
-            stepper1.moveSteps(90, True)
-
-            #Lower pen
-            print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 1)
-
-            #Rotate counter-clocwise
-            print("Rotating counter-clockwise!")
-            stepper1.moveSteps(180, False)
-
-            #Go to opposite right
-            print("Going right!")
-            stepper2.moveSteps(120, True)
-
-            #Rotate clockwise
-            print("Rotating clockwise!")
-            stepper1.moveSteps(90, True)
-
-            #Go to opposite left
-            print("Going right!")
-            stepper2.moveSteps(120, False)
-
-            #Lift pen
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 1)
-
+        try:              
+            drawSquare()
             #We should have a square by now
-
+            drawFirstEye()
+            drawSecondEye()
+            # Should have both eyes by now
+            drawMouth()
+            # Should have a mouth
+            goToInitialPoint()
+            
             finished = True
         except KeyboardInterrupt:
             print("got interrupted!")
