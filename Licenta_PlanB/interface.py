@@ -849,6 +849,41 @@ def plotTemplate2():
         print("Lifting pen!")
         servo.movePenToAngleSlow(penUpAngle, 0.75)
         print("Finished drawing mouth!")
+    def drawAntenna():
+        # Going to lower edge
+        print("Rotating clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/8), True)
+        # Going to left side
+        print("Going left!")
+        stepper2.moveSteps(int((stepper2SquareSteps * 3)/4), False)
+
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/2), False)
+
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 1)
+
+        print("Going left!")
+        stepper2.moveSteps(int(stepper2SquareSteps/4), False)
+
+        print("Rotating clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/16), True)
+
+        print("Going left!")
+        stepper2.moveSteps(int(stepper2SquareSteps/8), False)
+
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/16), False)
+
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/8), True)
+
+        print("Rotating clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/16), True)
+        #Lift pen
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+        print("Finished drawing antenna!")
 
     def goToInitialPoint():
         #Going back to initial point
@@ -857,7 +892,15 @@ def plotTemplate2():
 
         print("Rotating counter-clockwise!")
         stepper1.moveSteps(int(stepper1SquareSteps - int((stepper1SquareSteps/8))), False)
+    def goToInitialPoint2():
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/4), True)
 
+        print("Rotating counter-clockwise!")
+        stepper1.moveSteps(int(stepper1SquareSteps/2), False)
+
+        print("Going right!")
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
     # Add a stopping variable
     finished = False
     while not finished:
@@ -870,6 +913,8 @@ def plotTemplate2():
             drawMouth()
             # Should have a mouth
             goToInitialPoint()
+            #drawAntenna()
+            #goToInitialPoint2()
             
             finished = True
         except KeyboardInterrupt:
