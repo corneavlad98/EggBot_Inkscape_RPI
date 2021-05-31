@@ -685,47 +685,43 @@ def plotTemplate1():
         try:   
             # Lower pen
             print("Lowering pen!")
-            servo.movePenToAngle(penDownAngle)
+            servo.movePenToAngleSlow(penDownAngle, 0.75)
             # Clockwise rotation
             print("rotating egg!")
             stepper1.moveSteps(840, True)
             # Lift pen
             print("Lifting pen!")
-            servo.movePenToAngle(penUpAngle)
-            print("Lifting pen a little!")
-            servo.movePenToAngle(penUpAngle - 8)
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
             
             #Go left
             print("Going left!")
             stepper2.moveSteps(sideSteps, False)
             # Lower pen
             print("Lowering pen!")
-            servo.movePenToAngle(penDownAngle)
+            servo.movePenToAngleSlow(penDownAngle, 0.75)
             # Clockwise Rotation
             print("Rotating egg!")
             stepper1.moveSteps(840, True)
             # Lift pen
             print("Lifting pen!")
-            servo.movePenToAngle(penUpAngle - 8)
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
             
             # Go back to middle
             print("Going to middle!")
-            stepper2.moveSteps(sideSteps, True)
-            print("Lowering pen a little")
-            servo.movePenToAngle(penUpAngle)
+            stepper2.moveSteps(sideSteps, True)         
 
             # Go to right
             print("Going right!")
             stepper2.moveSteps(sideSteps, True)
             # Lower pen
             print("Lowering pen!")
-            servo.movePenToAngle(penDownAngle)
+            servo.movePenToAngleSlow(penDownAngle, 0.75)
             # Clockwise Rotation
             print("Rotating egg!")
             stepper1.moveSteps(840, True)
             # Lift pen
             print("Lifting pen!")
-            servo.movePenToAngle(penUpAngle)
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
 
             # Go back to middle
             print("Going to middle!")
