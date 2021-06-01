@@ -688,50 +688,90 @@ def plotTemplate1():
     # Add a stopping variable
     finished = False
     sideSteps = 100
+    fullRotation = 840
     global lastPenAngle
     lastPenAngle = penUpAngle
-    while not finished:
+
+    def drawMiddleCircle():
+        # Lower pen
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 1)
+        
+        # Clockwise rotation
+        print("rotating egg!")
+        stepper1.moveSteps(fullRotation, True)
+        # Lift pen
+        print("Lifting pen slow!")
+        servo.movePenToAngleSlow(penUpAngle, 1)
+
+    def drawLeftMiddleCircle():
+        #Go left
+        print("Going left!")
+        stepper2.moveSteps(sideSteps / 2, False)
+        # Lower pen
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 1)
+        # Clockwise Rotation
+        print("Rotating egg!")
+        stepper1.moveSteps(fullRotation, True)
+        # Lift pen
+        print("Lifting pen slow!")
+        servo.movePenToAngleSlow(penUpAngle, 1)
+
+    def drawLeftCircle():
+        #Go left
+        print("Going left!")
+        stepper2.moveSteps(sideSteps / 2, False)
+        # Lower pen
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle - 6, 1)
+        # Clockwise Rotation
+        print("Rotating egg!")
+        stepper1.moveSteps(fullRotation, True)
+        # Lift pen
+        print("Lifting pen slow!")
+        servo.movePenToAngleSlow(penUpAngle, 1)
+        
+    def drawRightMiddleCircle():
+        # Go to right
+        print("Going right!")
+        stepper2.moveSteps(sideSteps / 2, True)
+        # Lower pen
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 1)
+        # Clockwise Rotation
+        print("Rotating egg!")
+        stepper1.moveSteps(fullRotation, True)
+        # Lift pen
+        print("Lifting pen slow!")
+        servo.movePenToAngleSlow(penUpAngle, 1)
+
+    def drawRightCircle():
+        # Go to right
+        print("Going right!")
+        stepper2.moveSteps(sideSteps / 2, True)
+        # Lower pen
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 1)
+        # Clockwise Rotation
+        print("Rotating egg!")
+        stepper1.moveSteps(fullRotation, True)
+        # Lift pen
+        print("Lifting pen slow!")
+        servo.movePenToAngleSlow(penUpAngle, 1)
+
+    while not finished:     
         try:   
-            # Lower pen
-            print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 1)
-           
-            # Clockwise rotation
-            print("rotating egg!")
-            stepper1.moveSteps(840, True)
-            # Lift pen
-            print("Lifting pen slow!")
-            servo.movePenToAngleSlow(penUpAngle, 1)
-            
-            #Go left
-            print("Going left!")
-            stepper2.moveSteps(sideSteps, False)
-            # Lower pen
-            print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle - 6, 1)
-            # Clockwise Rotation
-            print("Rotating egg!")
-            stepper1.moveSteps(840, True)
-            # Lift pen
-            print("Lifting pen slow!")
-            servo.movePenToAngleSlow(penUpAngle, 1)
+            drawMiddleCircle()
+            drawLeftMiddleCircle()
+            drawLeftCircle()        
             
             # Go back to middle
             print("Going to middle!")
             stepper2.moveSteps(sideSteps, True)         
 
-            # Go to right
-            print("Going right!")
-            stepper2.moveSteps(sideSteps, True)
-            # Lower pen
-            print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 1)
-            # Clockwise Rotation
-            print("Rotating egg!")
-            stepper1.moveSteps(840, True)
-            # Lift pen
-            print("Lifting pen slow!")
-            servo.movePenToAngleSlow(penUpAngle, 1)
+            drawRightMiddleCircle()
+            drawRightCircle()
 
             # Go back to middle
             print("Going to middle!")
