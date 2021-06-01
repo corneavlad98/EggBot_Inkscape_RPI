@@ -33,15 +33,15 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = [4, 92, 108, True]
-stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
-stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
+servoSettingsEntries = [4, 92, 110, True]
+stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 10, True]
+stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 10, True]
 lastPenAngle = servoSettingsEntries[1]
 servoIsUp = None
 
-path1_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
+path1_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1_alt.jpg"
 path2_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg2.jpg"
-path1_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1.jpg"
+path1_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1_alt.jpg"
 path2_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg2.jpg"
 class ServoMotor():
     def __init__(self, pin):
@@ -707,7 +707,7 @@ def plotTemplate1():
     def drawLeftMiddleCircle():
         #Go left
         print("Going left!")
-        stepper2.moveSteps(sideSteps / 2, False)
+        stepper2.moveSteps(int(sideSteps / 2) + 10, False)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
@@ -721,10 +721,10 @@ def plotTemplate1():
     def drawLeftCircle():
         #Go left
         print("Going left!")
-        stepper2.moveSteps(sideSteps / 2, False)
+        stepper2.moveSteps(int(sideSteps / 2) - 10, False)
         # Lower pen
         print("Lowering pen!")
-        servo.movePenToAngleSlow(penDownAngle - 6, 1)
+        servo.movePenToAngleSlow(penDownAngle - 4, 1)
         # Clockwise Rotation
         print("Rotating egg!")
         stepper1.moveSteps(fullRotation, True)
@@ -735,7 +735,7 @@ def plotTemplate1():
     def drawRightMiddleCircle():
         # Go to right
         print("Going right!")
-        stepper2.moveSteps(sideSteps / 2, True)
+        stepper2.moveSteps(int(sideSteps / 2), True)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
@@ -749,7 +749,7 @@ def plotTemplate1():
     def drawRightCircle():
         # Go to right
         print("Going right!")
-        stepper2.moveSteps(sideSteps / 2, True)
+        stepper2.moveSteps(int(sideSteps / 2), True)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
