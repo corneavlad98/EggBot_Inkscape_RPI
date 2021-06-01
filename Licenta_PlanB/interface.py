@@ -803,6 +803,8 @@ def plotTemplate2():
     
     stepper1SquareSteps = 144
     stepper2SquareSteps = 72
+    global lastPenAngle
+    lastPenAngle = penUpAngle
     def drawSquare():
         #Go left a little
         print("Going left!")
@@ -855,6 +857,7 @@ def plotTemplate2():
         print("Lifting pen!")
         servo.movePenToAngleSlow(penUpAngle, 0.75)
         print("Finished drawing first eye!")
+
     def drawSecondEye():
         # Drawing second eye           
         print("Going left!")
@@ -919,7 +922,7 @@ def plotTemplate2():
         stepper2.moveSteps(int(stepper2SquareSteps/8), False)
 
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/16), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/8), False)
 
         print("Going right!")
         stepper2.moveSteps(int(stepper2SquareSteps/8), True)
@@ -958,9 +961,9 @@ def plotTemplate2():
             # Should have both eyes by now
             drawMouth()
             # Should have a mouth
-            goToInitialPoint()
-            #drawAntenna()
-            #goToInitialPoint2()
+            #goToInitialPoint()
+            drawAntenna()
+            goToInitialPoint2()
             
             finished = True
         except KeyboardInterrupt:
