@@ -33,7 +33,7 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = [4, 92, 102, True]
+servoSettingsEntries = [4, 92, 108, True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 100, True]
 stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 100, True]
 lastPenAngle = servoSettingsEntries[1]
@@ -53,7 +53,8 @@ class ServoMotor():
         self.pwm = pigpio.pi() 
         self.pwm.set_mode(self.servo, pigpio.OUTPUT)
 
-        self.pwm.set_PWM_frequency(self.servo, 50 )
+        #self.pwm.set_PWM_frequency(self.servo, 50 )
+        self.setFrequency(50)
     def updatePin(self, pin):
         self.servo = int(pin)
     def setFrequency(self, frequency):
@@ -64,6 +65,9 @@ class ServoMotor():
 
         time.sleep(1)
     def movePenToAngleSlow(self, angle, delta):
+        global lastPenAngle
+        self.setFrequency(50)
+        
         startAddedPulse = math.ceil((lastPenAngle * 1000) / 90)
         endAddedPulse = math.ceil((angle * 1000) / 90)
 
@@ -75,6 +79,9 @@ class ServoMotor():
         for x in range(100):
             self.pwm.set_servo_pulsewidth(self.servo, int(start+x*incMove))
             time.sleep(incTime)
+        
+        lastPenAngle = angle
+        self.turnOff()
     def turnOff(self):
         # turning off servo
         print("turning off servo")
@@ -681,30 +688,33 @@ def plotTemplate1():
     # Add a stopping variable
     finished = False
     sideSteps = 100
+    global lastPenAngle
+    lastPenAngle = penUpAngle
     while not finished:
         try:   
             # Lower pen
             print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 0.75)
+            servo.movePenToAngleSlow(penDownAngle, 1)
+           
             # Clockwise rotation
             print("rotating egg!")
             stepper1.moveSteps(840, True)
             # Lift pen
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
+            print("Lifting pen slow!")
+            servo.movePenToAngleSlow(penUpAngle, 1)
             
             #Go left
             print("Going left!")
             stepper2.moveSteps(sideSteps, False)
             # Lower pen
             print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 0.75)
+            servo.movePenToAngleSlow(penDownAngle - 6, 1)
             # Clockwise Rotation
             print("Rotating egg!")
             stepper1.moveSteps(840, True)
             # Lift pen
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
+            print("Lifting pen slow!")
+            servo.movePenToAngleSlow(penUpAngle, 1)
             
             # Go back to middle
             print("Going to middle!")
@@ -715,13 +725,13 @@ def plotTemplate1():
             stepper2.moveSteps(sideSteps, True)
             # Lower pen
             print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 0.75)
+            servo.movePenToAngleSlow(penDownAngle, 1)
             # Clockwise Rotation
             print("Rotating egg!")
             stepper1.moveSteps(840, True)
             # Lift pen
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
+            print("Lifting pen slow!")
+            servo.movePenToAngleSlow(penUpAngle, 1)
 
             # Go back to middle
             print("Going to middle!")
