@@ -99,9 +99,9 @@ class Stepper():
         self.GPIO_pins = (self.ms1Pin, self.ms2Pin, self.ms3Pin)
         self.myStepper = RpiMotorLib.A4988Nema(self.directionPin, self.stepPin, self.GPIO_pins, "A4988")   
 
-    def moveSteps(self, steps, clocwise):
+    def moveSteps(self, steps, clocwise, sleep):
         self.myStepper.motor_go(not clocwise, self.stepType, steps, 0.01, False, .05)
-        time.sleep(1)
+        time.sleep(sleep)
     def stopStepper(self):
         self.myStepper.motor_stop()
         print("stopping stepper!")
@@ -365,7 +365,7 @@ class Stepper1_Settings_Tab():
         walkDistance = stepper1SettingsEntries[6]
         clockwise = stepper1SettingsEntries[7]
 
-        self.stepper.moveSteps(walkDistance, clockwise)
+        self.stepper.moveSteps(walkDistance, clockwise, 1)
         self.stepper.stopStepper()
 
         print("finished stepper 1 move!")
@@ -507,7 +507,7 @@ class Stepper2_Settings_Tab():
         walkDistance = stepper2SettingsEntries[6]
         clockwise = stepper2SettingsEntries[7]
 
-        self.stepper.moveSteps(walkDistance, clockwise)
+        self.stepper.moveSteps(walkDistance, clockwise, 1)
         self.stepper.stopStepper()
         print("finished stepper 2 move!")
 
@@ -668,7 +668,8 @@ def open_template3_window():
     label4 = Label(window, text="When you are ready, press this button", font=labelFont)
     label4.place(x=150, y=440)
     #print_all()
-    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate1)
+    
+    plotButton = Button(window, text="Plot", font = buttonFont, width = 5, fg = 'black', command=plotTemplate3)
     plotButton.place(x=285,y=490)
 
     window.mainloop()
@@ -699,7 +700,7 @@ def plotTemplate1():
         
         # Clockwise rotation
         print("rotating egg!")
-        stepper1.moveSteps(fullRotation, True)
+        stepper1.moveSteps(fullRotation, True, 1)
         # Lift pen
         print("Lifting pen slow!")
         servo.movePenToAngleSlow(penUpAngle, 1)
@@ -707,13 +708,13 @@ def plotTemplate1():
     def drawLeftMiddleCircle():
         #Go left
         print("Going left!")
-        stepper2.moveSteps(int(sideSteps / 2) + 10, False)
+        stepper2.moveSteps(int(sideSteps / 2) + 10, False, 1)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
         # Clockwise Rotation
         print("Rotating egg!")
-        stepper1.moveSteps(fullRotation, True)
+        stepper1.moveSteps(fullRotation, True, 1)
         # Lift pen
         print("Lifting pen slow!")
         servo.movePenToAngleSlow(penUpAngle, 1)
@@ -721,13 +722,13 @@ def plotTemplate1():
     def drawLeftCircle():
         #Go left
         print("Going left!")
-        stepper2.moveSteps(int(sideSteps / 2) - 10, False)
+        stepper2.moveSteps(int(sideSteps / 2) - 10, False, 1)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle - 4, 1)
         # Clockwise Rotation
         print("Rotating egg!")
-        stepper1.moveSteps(fullRotation, True)
+        stepper1.moveSteps(fullRotation, True, 1)
         # Lift pen
         print("Lifting pen slow!")
         servo.movePenToAngleSlow(penUpAngle, 1)
@@ -735,13 +736,13 @@ def plotTemplate1():
     def drawRightMiddleCircle():
         # Go to right
         print("Going right!")
-        stepper2.moveSteps(int(sideSteps / 2), True)
+        stepper2.moveSteps(int(sideSteps / 2), True, 1)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
         # Clockwise Rotation
         print("Rotating egg!")
-        stepper1.moveSteps(fullRotation, True)
+        stepper1.moveSteps(fullRotation, True, 1)
         # Lift pen
         print("Lifting pen slow!")
         servo.movePenToAngleSlow(penUpAngle, 1)
@@ -749,13 +750,13 @@ def plotTemplate1():
     def drawRightCircle():
         # Go to right
         print("Going right!")
-        stepper2.moveSteps(int(sideSteps / 2), True)
+        stepper2.moveSteps(int(sideSteps / 2), True, 1)
         # Lower pen
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
         # Clockwise Rotation
         print("Rotating egg!")
-        stepper1.moveSteps(fullRotation, True)
+        stepper1.moveSteps(fullRotation, True, 1)
         # Lift pen
         print("Lifting pen slow!")
         servo.movePenToAngleSlow(penUpAngle, 1)
@@ -768,14 +769,14 @@ def plotTemplate1():
             
             # Go back to middle
             print("Going to middle!")
-            stepper2.moveSteps(sideSteps, True)         
+            stepper2.moveSteps(sideSteps, True, 1)         
 
             drawRightMiddleCircle()
             drawRightCircle()
 
             # Go back to middle
             print("Going to middle!")
-            stepper2.moveSteps(sideSteps, False)
+            stepper2.moveSteps(sideSteps, False, 1)
 
             finished = True
         except KeyboardInterrupt:
@@ -805,14 +806,15 @@ def plotTemplate2():
     stepper2SquareSteps = 72
     global lastPenAngle
     lastPenAngle = penUpAngle
+
     def drawSquare():
         #Go left a little
         print("Going left!")
-        stepper2.moveSteps(stepper2SquareSteps, False)
+        stepper2.moveSteps(stepper2SquareSteps, False, 1)
 
         #Rotate clockwise
         print("Rotating clockwise!")
-        stepper1.moveSteps(stepper1SquareSteps, True)
+        stepper1.moveSteps(stepper1SquareSteps, True, 1)
 
         #Lower pen
         print("Lowering pen!")
@@ -820,19 +822,19 @@ def plotTemplate2():
 
         #Rotate counter-clocwise
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(stepper1SquareSteps, False)
+        stepper1.moveSteps(stepper1SquareSteps, False, 1)
 
         #Go to opposite right
         print("Going right!")
-        stepper2.moveSteps(stepper2SquareSteps * 2, True)
+        stepper2.moveSteps(stepper2SquareSteps * 2, True, 1)
 
         #Rotate clockwise
         print("Rotating clockwise!")
-        stepper1.moveSteps(stepper1SquareSteps, True)
+        stepper1.moveSteps(stepper1SquareSteps, True, 1)
 
         #Go to opposite left
         print("Going left!")
-        stepper2.moveSteps(stepper2SquareSteps * 2, False)
+        stepper2.moveSteps(stepper2SquareSteps * 2, False, 1)
 
         #Lift pen
         print("Lifting pen!")
@@ -842,16 +844,16 @@ def plotTemplate2():
     def drawFirstEye():
         # Drawing first eye
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/4), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/4), False, 1)
 
         print("Going right")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
 
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 0.75)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
         
         #Lift pen
         print("Lifting pen!")
@@ -861,16 +863,16 @@ def plotTemplate2():
     def drawSecondEye():
         # Drawing second eye           
         print("Going left!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), False)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), False, 1)
 
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/2), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/2), False, 1)
                        
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 0.75)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
         #Lift pen
         print("Lifting pen!")
         servo.movePenToAngleSlow(penUpAngle, 0.75)
@@ -878,22 +880,22 @@ def plotTemplate2():
 
     def drawMouth():
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/8), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/8), False, 1)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/4), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/4), True, 1)
 
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 0.75)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
          
         print("Rotating clockwise!")
-        stepper1.moveSteps(int((stepper1SquareSteps/4)*3) , True)
+        stepper1.moveSteps(int((stepper1SquareSteps/4)*3) , True, 1)
 
         print("Going left!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), False)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), False, 1)
         #Lift pen
         print("Lifting pen!")
         servo.movePenToAngleSlow(penUpAngle, 0.75)
@@ -901,34 +903,34 @@ def plotTemplate2():
     def drawAntenna():
         # Going to lower edge
         print("Rotating clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/8), True)
+        stepper1.moveSteps(int(stepper1SquareSteps/8), True, 1)
         # Going to left side
         print("Going left!")
-        stepper2.moveSteps(int((stepper2SquareSteps * 3)/4), False)
+        stepper2.moveSteps(int((stepper2SquareSteps * 3)/4), False, 1)
 
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/2), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/2), False, 1)
 
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 1)
 
         print("Going left!")
-        stepper2.moveSteps(int(stepper2SquareSteps/4), False)
+        stepper2.moveSteps(int(stepper2SquareSteps/4), False, 1)
 
         print("Rotating clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/16), True)
+        stepper1.moveSteps(int(stepper1SquareSteps/16), True, 1)
 
         print("Going left!")
-        stepper2.moveSteps(int(stepper2SquareSteps/8), False)
+        stepper2.moveSteps(int(stepper2SquareSteps/8), False, 1)
 
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/8), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/8), False, 1)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/8), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/8), True, 1)
 
         print("Rotating clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/16), True)
+        stepper1.moveSteps(int(stepper1SquareSteps/16), True, 1)
         #Lift pen
         print("Lifting pen!")
         servo.movePenToAngleSlow(penUpAngle, 0.75)
@@ -937,19 +939,19 @@ def plotTemplate2():
     def goToInitialPoint():
         #Going back to initial point
         print("Going left!")
-        stepper2.moveSteps(int(stepper2SquareSteps/4), False)
+        stepper2.moveSteps(int(stepper2SquareSteps/4), False, 1)
 
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps - int((stepper1SquareSteps/8))), False)
+        stepper1.moveSteps(int(stepper1SquareSteps - int((stepper1SquareSteps/8))), False, 1)
     def goToInitialPoint2():
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/4), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/4), True, 1)
 
         print("Rotating counter-clockwise!")
-        stepper1.moveSteps(int(stepper1SquareSteps/2), False)
+        stepper1.moveSteps(int(stepper1SquareSteps/2), False, 1)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), True)
+        stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
     # Add a stopping variable
     finished = False
     while not finished:
@@ -978,6 +980,75 @@ def plotTemplate2():
 
  
     print("finished plotting second template!")
+
+
+def plotTemplate3():
+    print("got into plotting third template!")
+    # Initialize servo
+    servo = ServoMotor(servoSettingsEntries[0])
+    penUpAngle = servoSettingsEntries[1]
+    penDownAngle = servoSettingsEntries[2]
+
+    # Initialize stepper 1 (egg)
+    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
+    # Initialize stepper 2 (pen)
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
+    
+    fullArmSteps = 200
+    fullEggSteps = 840
+    global lastPenAngle
+    lastPenAngle = penUpAngle
+
+    def drawRamp(eggClockwise, armClockwise):
+        i = 0
+        while i < 200:
+            stepper2.moveSteps(1, armClockwise, 0.05)
+            stepper1.moveSteps(1, eggClockwise, 0.05)
+            if i % 20 == 0 and i != 0:
+                stepper1.moveSteps(1, eggClockwise, 0.05)
+            i += 1
+
+
+    # Add a stopping variable
+    finished = False
+    while not finished:
+        try:
+            print("lifting pen!")
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
+                          
+            print("going right!")
+            stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
+
+            # print("Lowering pen!")
+            # servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+            drawRamp(eggClockwise=False, armClockwise=False)
+
+            print("rotating clockwise!")
+            stepper1.moveSteps(int(fullEggSteps / 4), True, 1)
+
+            print("going back to middle")
+            stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
+
+
+            finished = True
+        except KeyboardInterrupt:
+            print("got interrupted!")
+            break
+
+    
+    # stopping motors
+    servo.turnOff()
+    stepper1.stopStepper()
+    stepper2.stopStepper()
+ 
+    print("finished plotting third template!")
+
+
+
+
+
+
 #Define UI stuff
 mylabel = Label(gui, text = "Eggbot", font = ("Helvetica", 36 ), bg=backgroundColor)
 mylabel.pack(side=TOP, pady = 50)
