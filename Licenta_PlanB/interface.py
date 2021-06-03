@@ -100,7 +100,7 @@ class Stepper():
         self.myStepper = RpiMotorLib.A4988Nema(self.directionPin, self.stepPin, self.GPIO_pins, "A4988")   
 
     def moveSteps(self, steps, clocwise, sleep):
-        self.myStepper.motor_go(not clocwise, self.stepType, steps, 0.01, False, .05)
+        self.myStepper.motor_go(not clocwise, self.stepType, steps, 0.005, False, .05)
         time.sleep(sleep)
     def stopStepper(self):
         self.myStepper.motor_stop()
@@ -990,22 +990,22 @@ def plotTemplate3():
     penDownAngle = servoSettingsEntries[2]
 
     # Initialize stepper 1 (egg)
-    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
+    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], '1/4')  
     # Initialize stepper 2 (pen)
-    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], '1/8')
     
     fullArmSteps = 200
-    fullEggSteps = 840
+    fullEggSteps = 820
     global lastPenAngle
     lastPenAngle = penUpAngle
 
     def drawRamp(eggClockwise, armClockwise):
         i = 0
-        while i < 200:
-            stepper2.moveSteps(1, armClockwise, 0.05)
-            stepper1.moveSteps(1, eggClockwise, 0.05)
-            if i % 20 == 0 and i != 0:
-                stepper1.moveSteps(1, eggClockwise, 0.05)
+        while i < 100:
+            stepper2.moveSteps(2, armClockwise, 0)
+            stepper1.moveSteps(2, eggClockwise, 0)
+            if i % 40 == 0 and i != 0:
+                stepper1.moveSteps(2, eggClockwise, 0)
             i += 1
 
 
@@ -1019,16 +1019,25 @@ def plotTemplate3():
             print("going right!")
             stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
 
-            # print("Lowering pen!")
-            # servo.movePenToAngleSlow(penDownAngle, 0.75)
+            print("Lowering pen!")
+            servo.movePenToAngleSlow(penDownAngle, 0.75)
 
             drawRamp(eggClockwise=False, armClockwise=False)
+            drawRamp(eggClockwise=False, armClockwise=True)
+            drawRamp(eggClockwise=False, armClockwise=False)
+            drawRamp(eggClockwise=False, armClockwise=True)
 
-            print("rotating clockwise!")
-            stepper1.moveSteps(int(fullEggSteps / 4), True, 1)
+            print("Lifting pen!")
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+            # print("rotating clockwise!")
+            # stepper1.moveSteps(int(fullEggSteps / 4), True, 1)
+
+            # print("going back to middle")
+            # stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
 
             print("going back to middle")
-            stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
+            stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
 
 
             finished = True
