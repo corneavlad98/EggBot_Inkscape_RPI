@@ -33,9 +33,9 @@ titleLabelFont = ("Helvetica", 15, BOLD)
 detailsTextFont =("Helvetica", 14)
 optionMenuFont = ("Helvetica", 14)
 
-servoSettingsEntries = [4, 92, 110, True]
+servoSettingsEntries = [4, 88, 110, True]
 stepper1SettingsEntries = [14, 15, 18, 21, 20, '1/4', 10, True]
-stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/8', 10, True]
+stepper2SettingsEntries = [17, 27, 22, 26, 19, '1/4', 10, True]
 lastPenAngle = servoSettingsEntries[1]
 servoIsUp = None
 
@@ -684,7 +684,7 @@ def plotTemplate1():
     # Initialize stepper 1 (egg)
     stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
     # Initialize stepper 2 (pen)
-    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])
     
     # Add a stopping variable
     finished = False
@@ -763,20 +763,24 @@ def plotTemplate1():
 
     while not finished:     
         try:   
-            drawMiddleCircle()
-            drawLeftMiddleCircle()
-            drawLeftCircle()        
+            # drawMiddleCircle()
+            # drawLeftMiddleCircle()
+            # drawLeftCircle()        
             
+            # # Go back to middle
+            # print("Going to middle!")
+            # stepper2.moveSteps(sideSteps, True, 1)         
+
+            # drawRightMiddleCircle()
+            # drawRightCircle()
+
+            print("going right!")
+            stepper2.moveSteps(int(sideSteps / 2), True, 1)
+            print(f'Went {int(sideSteps / 2)} steps!')
+
             # Go back to middle
             print("Going to middle!")
-            stepper2.moveSteps(sideSteps, True, 1)         
-
-            drawRightMiddleCircle()
-            drawRightCircle()
-
-            # Go back to middle
-            print("Going to middle!")
-            stepper2.moveSteps(sideSteps, False, 1)
+            stepper2.moveSteps(int(sideSteps / 2), False, 1)
 
             finished = True
         except KeyboardInterrupt:
@@ -800,7 +804,7 @@ def plotTemplate2():
     # Initialize stepper 1 (egg)
     stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
     # Initialize stepper 2 (pen)
-    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper1SettingsEntries[5])
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])
     
     stepper1SquareSteps = 144
     stepper2SquareSteps = 72
@@ -995,7 +999,7 @@ def plotTemplate3():
     stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])
     
     fullArmSteps = 200
-    fullEggSteps = 820
+    fullEggSteps = 816
     global lastPenAngle
     lastPenAngle = penUpAngle
 
@@ -1004,32 +1008,46 @@ def plotTemplate3():
         while i < 100:
             stepper2.moveSteps(2, armClockwise, 0)
             stepper1.moveSteps(2, eggClockwise, 0)
-            if i % 40 == 0 and i != 0:
+            if i % 50 == 0 and i != 0:
                 stepper1.moveSteps(2, eggClockwise, 0)
             i += 1
 
+    def drawDiamond():
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+                        
+        print("going right!")
+        stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
+
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        #pattern
+        drawRamp(eggClockwise=False, armClockwise=False)
+        drawRamp(eggClockwise=False, armClockwise=True)
+        drawRamp(eggClockwise=False, armClockwise=False)
+        drawRamp(eggClockwise=False, armClockwise=True)
+
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+        print("going to the other side")
+        stepper2.moveSteps(fullArmSteps, False, 1) 
+
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75) 
+
+        #pattern reversed
+        drawRamp(eggClockwise=False, armClockwise=True)
+        drawRamp(eggClockwise=False, armClockwise=False)
+        drawRamp(eggClockwise=False, armClockwise=True)
+        drawRamp(eggClockwise=False, armClockwise=False)
 
     # Add a stopping variable
     finished = False
     while not finished:
         try:
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
-                          
-            print("going right!")
-            stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
-            print(f'Went {int(fullArmSteps / 2)} steps!')
-
-            # print("Lowering pen!")
-            # servo.movePenToAngleSlow(penDownAngle, 0.75)
-
-            # drawRamp(eggClockwise=False, armClockwise=False)
-            # drawRamp(eggClockwise=False, armClockwise=True)
-            # drawRamp(eggClockwise=False, armClockwise=False)
-            # drawRamp(eggClockwise=False, armClockwise=True)
-
-            # print("Lifting pen!")
-            # servo.movePenToAngleSlow(penUpAngle, 0.75)
+            drawDiamond()
 
             # print("rotating clockwise!")
             # stepper1.moveSteps(int(fullEggSteps / 4), True, 1)
@@ -1037,9 +1055,14 @@ def plotTemplate3():
             # print("going back to middle")
             # stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
 
+            # print("going back to middle")
+            # stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
+
+            print("Lifting pen!")
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
+
             print("going back to middle")
-            stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
-            print(f'Went {int(fullArmSteps / 2)} steps!')
+            stepper2.moveSteps(int(fullArmSteps / 2), True, 1)           
 
 
             finished = True
