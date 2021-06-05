@@ -990,9 +990,9 @@ def plotTemplate3():
     penDownAngle = servoSettingsEntries[2]
 
     # Initialize stepper 1 (egg)
-    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], '1/4')  
+    stepper1 = Stepper(1, stepper1SettingsEntries[0], stepper1SettingsEntries[1], stepper1SettingsEntries[2], stepper1SettingsEntries[3], stepper1SettingsEntries[4], stepper1SettingsEntries[5])  
     # Initialize stepper 2 (pen)
-    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], '1/8')
+    stepper2 = Stepper(2, stepper2SettingsEntries[0], stepper2SettingsEntries[1], stepper2SettingsEntries[2], stepper2SettingsEntries[3], stepper2SettingsEntries[4], stepper2SettingsEntries[5])
     
     fullArmSteps = 200
     fullEggSteps = 820
@@ -1013,22 +1013,23 @@ def plotTemplate3():
     finished = False
     while not finished:
         try:
-            print("lifting pen!")
+            print("Lifting pen!")
             servo.movePenToAngleSlow(penUpAngle, 0.75)
                           
             print("going right!")
             stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
+            print(f'Went {int(fullArmSteps / 2)} steps!')
 
-            print("Lowering pen!")
-            servo.movePenToAngleSlow(penDownAngle, 0.75)
+            # print("Lowering pen!")
+            # servo.movePenToAngleSlow(penDownAngle, 0.75)
 
-            drawRamp(eggClockwise=False, armClockwise=False)
-            drawRamp(eggClockwise=False, armClockwise=True)
-            drawRamp(eggClockwise=False, armClockwise=False)
-            drawRamp(eggClockwise=False, armClockwise=True)
+            # drawRamp(eggClockwise=False, armClockwise=False)
+            # drawRamp(eggClockwise=False, armClockwise=True)
+            # drawRamp(eggClockwise=False, armClockwise=False)
+            # drawRamp(eggClockwise=False, armClockwise=True)
 
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
+            # print("Lifting pen!")
+            # servo.movePenToAngleSlow(penUpAngle, 0.75)
 
             # print("rotating clockwise!")
             # stepper1.moveSteps(int(fullEggSteps / 4), True, 1)
@@ -1038,6 +1039,7 @@ def plotTemplate3():
 
             print("going back to middle")
             stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
+            print(f'Went {int(fullArmSteps / 2)} steps!')
 
 
             finished = True
