@@ -696,93 +696,82 @@ def plotTemplate1():
     lastPenAngle = penUpAngle
 
     def drawMiddleCircle():
-        # Lower pen
         print("Lowering pen!")
-        servo.movePenToAngleSlow(penDownAngle, 1)
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
         
-        # Clockwise rotation
         print("rotating egg!")
         stepper1.moveSteps(fullRotation, True, 1)
-        # Lift pen
-        print("Lifting pen slow!")
-        servo.movePenToAngleSlow(penUpAngle, 1)
+
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
 
     def drawLeftMiddleCircle():
-        #Go left
         print("Going left!")
         stepper2.moveSteps(int(sideSteps / 2) + 10, False, 1)
-        # Lower pen
+
         print("Lowering pen!")
-        servo.movePenToAngleSlow(penDownAngle, 1)
-        # Clockwise Rotation
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
         print("Rotating egg!")
         stepper1.moveSteps(fullRotation, True, 1)
-        # Lift pen
-        print("Lifting pen slow!")
-        servo.movePenToAngleSlow(penUpAngle, 1)
+
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
 
     def drawLeftCircle():
-        #Go left
         print("Going left!")
         stepper2.moveSteps(int(sideSteps / 2) - 10, False, 1)
-        # Lower pen
+
         print("Lowering pen!")
-        servo.movePenToAngleSlow(penDownAngle - 4, 1)
-        # Clockwise Rotation
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
         print("Rotating egg!")
         stepper1.moveSteps(fullRotation, True, 1)
-        # Lift pen
-        print("Lifting pen slow!")
-        servo.movePenToAngleSlow(penUpAngle, 1)
+
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+        # Go back to middle
+        print("Going to middle!")
+        stepper2.moveSteps(sideSteps, True, 1)
         
     def drawRightMiddleCircle():
-        # Go to right
         print("Going right!")
         stepper2.moveSteps(int(sideSteps / 2), True, 1)
-        # Lower pen
+
         print("Lowering pen!")
-        servo.movePenToAngleSlow(penDownAngle, 1)
-        # Clockwise Rotation
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
         print("Rotating egg!")
         stepper1.moveSteps(fullRotation, True, 1)
-        # Lift pen
-        print("Lifting pen slow!")
-        servo.movePenToAngleSlow(penUpAngle, 1)
+
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
 
     def drawRightCircle():
-        # Go to right
         print("Going right!")
         stepper2.moveSteps(int(sideSteps / 2), True, 1)
-        # Lower pen
+
         print("Lowering pen!")
-        servo.movePenToAngleSlow(penDownAngle, 1)
-        # Clockwise Rotation
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+ 
         print("Rotating egg!")
         stepper1.moveSteps(fullRotation, True, 1)
-        # Lift pen
-        print("Lifting pen slow!")
-        servo.movePenToAngleSlow(penUpAngle, 1)
+ 
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+        # Go back to middle
+        print("Going to middle!")
+        stepper2.moveSteps(sideSteps, False, 1)
 
     while not finished:     
         try:   
-            # drawMiddleCircle()
-            # drawLeftMiddleCircle()
-            # drawLeftCircle()        
-            
-            # # Go back to middle
-            # print("Going to middle!")
-            # stepper2.moveSteps(sideSteps, True, 1)         
-
-            # drawRightMiddleCircle()
-            # drawRightCircle()
-
-            print("going right!")
-            stepper2.moveSteps(int(sideSteps / 2), True, 1)
-            print(f'Went {int(sideSteps / 2)} steps!')
-
-            # Go back to middle
-            print("Going to middle!")
-            stepper2.moveSteps(int(sideSteps / 2), False, 1)
+            drawMiddleCircle()
+            drawLeftMiddleCircle()
+            drawLeftCircle()                        
+            drawRightMiddleCircle()
+            drawRightCircle()                 
 
             finished = True
         except KeyboardInterrupt:
@@ -794,8 +783,8 @@ def plotTemplate1():
     stepper1.stopStepper()
     stepper2.stopStepper()
 
- 
     print("finished plotting first template!")
+
 def plotTemplate2():
     print("got into plotting second template!")
     # Initialize servo
@@ -958,6 +947,7 @@ def plotTemplate2():
 
         print("Going right!")
         stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
+    
     # Add a stopping variable
     finished = False
     while not finished:
@@ -983,7 +973,6 @@ def plotTemplate2():
     servo.turnOff()
     stepper1.stopStepper()
     stepper2.stopStepper()
-
  
     print("finished plotting second template!")
 
