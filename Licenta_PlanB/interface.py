@@ -41,8 +41,10 @@ servoIsUp = None
 
 path1_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1_alt.jpg"
 path2_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg2.jpg"
+path3_PC = "C:/Users/Vlad/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg3.jpg"
 path1_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg1_alt.jpg"
 path2_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg2.jpg"
+path3_RPI = "/home/pi/Desktop/EggBot_Inkscape_RPI/Licenta_PlanB/egg3.jpg"
 class ServoMotor():
     def __init__(self, pin):
         self.servo = int(pin)      
@@ -646,7 +648,7 @@ def open_template3_window():
     window.geometry("640x560")
     window.resizable(False,False)
 
-    image = Image.open(path1_RPI)
+    image = Image.open(path3_RPI)
     resized = image.resize((210, 290), Image.ANTIALIAS)  
     #Creates a Tkinter-compatible photo image, which can be used everywhere Tkinter expects an image object.
     img = ImageTk.PhotoImage(resized)
@@ -1012,13 +1014,36 @@ def plotTemplate3():
                 stepper1.moveSteps(2, eggClockwise, 0)
             i += 1
 
-    def drawDiamond():
+    def drawLeftCircle():
+        print("Going left!")
+        stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
+
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        print("Rotating egg!")
+        stepper1.moveSteps(fullEggSteps + 14, True, 1)
+
         print("Lifting pen!")
         servo.movePenToAngleSlow(penUpAngle, 0.75)
-                        
-        print("going right!")
+
+        print("going back to middle")
+        stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
+     
+    def drawRightCircle():
+        print("Going right!")
         stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
 
+        print("Lowering pen!")
+        servo.movePenToAngleSlow(penDownAngle, 0.75)
+
+        print("Rotating egg!")
+        stepper1.moveSteps(fullEggSteps + 14, True, 1)
+
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+    def drawDiamond():                       
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 0.75)
 
@@ -1043,10 +1068,21 @@ def plotTemplate3():
         drawRamp(eggClockwise=False, armClockwise=True)
         drawRamp(eggClockwise=False, armClockwise=False)
 
+        print("Lifting pen!")
+        servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+        print("going back to middle")
+        stepper2.moveSteps(int(fullArmSteps / 2), True, 1)    
+
     # Add a stopping variable
     finished = False
     while not finished:
         try:
+            print("Lifting pen!")
+            servo.movePenToAngleSlow(penUpAngle, 0.75)
+
+            drawLeftCircle()
+            drawRightCircle()          
             drawDiamond()
 
             # print("rotating clockwise!")
@@ -1057,13 +1093,6 @@ def plotTemplate3():
 
             # print("going back to middle")
             # stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
-
-            print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
-
-            print("going back to middle")
-            stepper2.moveSteps(int(fullArmSteps / 2), True, 1)           
-
 
             finished = True
         except KeyboardInterrupt:
