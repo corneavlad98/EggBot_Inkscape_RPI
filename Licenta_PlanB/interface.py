@@ -707,7 +707,7 @@ def plotTemplate1():
 
     def drawLeftMiddleCircle():
         print("Going left!")
-        stepper2.moveSteps(int(sideSteps / 2) + 10, False, 1)
+        stepper2.moveSteps(int(sideSteps / 2), False, 1)
 
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 0.75)
@@ -720,7 +720,7 @@ def plotTemplate1():
 
     def drawLeftCircle():
         print("Going left!")
-        stepper2.moveSteps(int(sideSteps / 2) - 10, False, 1)
+        stepper2.moveSteps(int(sideSteps / 2), False, 1)
 
         print("Lowering pen!")
         servo.movePenToAngleSlow(penDownAngle, 0.75)
@@ -1073,15 +1073,6 @@ def plotTemplate3():
             drawLeftCircle()
             drawRightCircle()          
             drawDiamond()
-
-            # print("rotating clockwise!")
-            # stepper1.moveSteps(int(fullEggSteps / 4), True, 1)
-
-            # print("going back to middle")
-            # stepper2.moveSteps(int(fullArmSteps / 2), True, 1)
-
-            # print("going back to middle")
-            # stepper2.moveSteps(int(fullArmSteps / 2), False, 1)
 
             finished = True
         except KeyboardInterrupt:
