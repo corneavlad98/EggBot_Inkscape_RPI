@@ -691,9 +691,7 @@ def plotTemplate1():
     # Add a stopping variable
     finished = False
     sideSteps = 100
-    fullRotation = 840
-    global lastPenAngle
-    lastPenAngle = penUpAngle
+    fullRotation = 830
 
     def drawMiddleCircle():
         print("Lowering pen!")
@@ -765,8 +763,12 @@ def plotTemplate1():
         print("Going to middle!")
         stepper2.moveSteps(sideSteps, False, 1)
 
+    global lastPenAngle
+    lastPenAngle = penUpAngle
     while not finished:     
-        try:   
+        try:
+            servo.movePenToAngleSlow(penUpAngle, 0.75)  
+
             drawMiddleCircle()
             drawLeftMiddleCircle()
             drawLeftCircle()                        
@@ -901,7 +903,7 @@ def plotTemplate2():
         stepper1.moveSteps(int(stepper1SquareSteps/8), True, 1)
         # Going to left side
         print("Going left!")
-        stepper2.moveSteps(int((stepper2SquareSteps * 3)/4), False, 1)
+        stepper2.moveSteps(int(stepper2SquareSteps/4) + stepper2SquareSteps, False, 1)
 
         print("Rotating counter-clockwise!")
         stepper1.moveSteps(int(stepper1SquareSteps/2), False, 1)
@@ -946,12 +948,15 @@ def plotTemplate2():
         stepper1.moveSteps(int(stepper1SquareSteps/2), False, 1)
 
         print("Going right!")
-        stepper2.moveSteps(int(stepper2SquareSteps/2), True, 1)
+        stepper2.moveSteps(stepper2SquareSteps, True, 1)
     
     # Add a stopping variable
     finished = False
     while not finished:
-        try:              
+        try:
+            print("Lifting pen!")
+            servo.movePenToAngleSlow(penUpAngle, 1)
+
             drawSquare()
             #We should have a square by now
             drawFirstEye()
@@ -1068,7 +1073,7 @@ def plotTemplate3():
     while not finished:
         try:
             print("Lifting pen!")
-            servo.movePenToAngleSlow(penUpAngle, 0.75)
+            servo.movePenToAngleSlow(penUpAngle, 1)
 
             drawLeftCircle()
             drawRightCircle()          
